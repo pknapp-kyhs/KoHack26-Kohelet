@@ -22,7 +22,10 @@
     <label>Tier: <select id="tier"><option>Easy</option><option>Medium</option><option>Advanced</option></select></label><br>
     <button onclick="register()">Register</button>
     <button onclick="login()">Login</button>
+    <button onclick="fetchProfile()">Load profile</button>
+    <button onclick="updateTier()">Update tier</button>
     <p id="token" class="small">No token yet</p>
+    <pre id="profileOutput"></pre>
   </div>
 
   <div class="panel">
@@ -30,6 +33,7 @@
     <label>Date: <input id="checklistDate" type="date" value="2026-03-22"></label><br>
     <button onclick="fetchChecklist()">Load checklist</button>
     <button onclick="fetchProgress()">Get today progress</button>
+    <ul id="checklistTasks"></ul>
     <pre id="checklistOutput"></pre>
   </div>
 
@@ -38,6 +42,46 @@
     <button onclick="fetchStreak()">Get streak</button>
     <button onclick="fetchStreakHistory()">Get streak history</button>
     <pre id="streakOutput"></pre>
+  </div>
+
+  <div class="panel">
+    <h2>4. Calendar</h2>
+    <label>Year: <input id="holidayYear" type="number" value="2026"></label>
+    <button onclick="fetchHolidays()">Holidays</button><br>
+    <label>Lat: <input id="lat" type="number" value="31.778"></label>
+    <label>Lng: <input id="lng" type="number" value="35.235"></label>
+    <label>Date: <input id="zmanimDate" type="date" value="2026-03-22"></label>
+    <button onclick="fetchZmanim()">Zmanim</button>
+    <br>
+    <label>Omer Date: <input id="omerDate" type="date" value="2026-03-22"></label>
+    <button onclick="fetchOmer()">Omer</button>
+    <pre id="calendarOutput"></pre>
+  </div>
+
+  <div class="panel">
+    <h2>5. Friends / Leaderboard</h2>
+    <button onclick="getFriends()">Get friends</button>
+    <label>Friend ID: <input id="friendId" value=""></label><button onclick="addFriend()">Add friend</button>
+    <button onclick="friendLeaderboard()">Friends leaderboard</button>
+    <pre id="friendsOutput"></pre>
+  </div>
+
+  <div class="panel">
+    <h2>6. Achievements</h2>
+    <button onclick="getAchievements()">My achievements</button>
+    <button onclick="getAvailableAchievements()">Available achievements</button>
+    <pre id="achievementsOutput"></pre>
+  </div>
+
+  <div class="panel">
+    <h2>7. XP & Rewards</h2>
+    <button onclick="getXP()">Get XP</button>
+    <label>Points: <input id="xpPoints" type="number" value="100"></label>
+    <button onclick="addXP()">Add XP</button>
+    <pre id="xpOutput"></pre>
+    <button onclick="getRewards()">Get rewards</button>
+    <label>Reward ID: <input id="rewardId" value=""></label><button onclick="redeemReward()">Redeem reward</button>
+    <pre id="rewardsOutput"></pre>
   </div>
 
   <script>
