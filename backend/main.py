@@ -42,6 +42,9 @@ def seed_core_data(db: Session):
             {"name":"Modeh Ani","description":"Morning blessing upon waking","category":"Prayer","tier":"Easy","estimated_time":2,"bracha_text":"Blessed are You...","instructions":"Say after waking."},
             {"name":"Shema","description":"Morning shema recitation","category":"Prayer","tier":"Easy","estimated_time":5,"bracha_text":"Hear O Israel...","instructions":"Morning and night."},
             {"name":"Charity","description":"Give tzedakah","category":"Mitzvah","tier":"Medium","estimated_time":5,"bracha_text":"Donation","instructions":"Donate any amount."},
+            {"name":"Tefillin","description":"Put on tefillin","category":"Prayer","tier":"Medium","estimated_time":10,"bracha_text":"Baruch...","instructions":"During weekday morning prayers."},
+            {"name":"Study Torah","description":"Learn a piece of Torah","category":"Study","tier":"Easy","estimated_time":20,"bracha_text":"","instructions":"Read a daf or parsha segment."},
+            {"name":"Mitzvah of the day","description":"Perform a kindness act","category":"Mitzvah","tier":"Hard","estimated_time":30,"bracha_text":"","instructions":"Help someone in need."},
         ]
         for t in defaults:
             task = models.Task(**t)
@@ -49,11 +52,95 @@ def seed_core_data(db: Session):
     if db.query(models.Achievement).count() == 0:
         a1 = models.Achievement(name="7-Day Streak Master",description="Complete full daily checklist 7 days in a row",xp_reward=200,icon="badge7.png",criteria="streak >= 7")
         a2 = models.Achievement(name="First Day",description="Complete your first day checklist",xp_reward=50,icon="badge1.png",criteria="streak >= 1")
-        db.add_all([a1,a2])
+        a3 = models.Achievement(name="Consistent Scholar",description="Log Torah study 5 days in a row",xp_reward=250,icon="badgeStudy.png",criteria="study streak >= 5")
+        db.add_all([a1,a2,a3])
     if db.query(models.Reward).count() == 0:
         r1 = models.Reward(name="Premium Theme Pack",description="Unlock special UI theme",xp_cost=1000,is_unlocked=False)
         r2 = models.Reward(name="Extra Avatar",description="Special avatar frame",xp_cost=500,is_unlocked=False)
-        db.add_all([r1,r2])
+        r3 = models.Reward(name="Shabbat Box",description="Download a Shabbat checklist template",xp_cost=300,is_unlocked=False)
+        db.add_all([r1,r2,r3])
+
+    # Seed demo users only if none exist
+    if db.query(models.User).count() == 0:
+        demo_users = [
+            {"name":"Leah Cohen","email":"leah@example.com","password":"Test1234","tier":"Easy","observance_level":"Beginner","join_date":date.today(),"current_streak":4,"longest_streak":7,"streak_start_date":date.today()-timedelta(days=3),"xp_current":280,"xp_total":1650,"level":2,"preferences":{"notifications":True,"reminders":True,"public_profile":True}},
+            {"name":"David Levi","email":"david@example.com","password":"Test1234","tier":"Medium","observance_level":"Moderate","join_date":date.today()-timedelta(days=40),"current_streak":15,"longest_streak":24,"streak_start_date":date.today()-timedelta(days=14),"xp_current":780,"xp_total":8200,"level":8,"preferences":{"notifications":True,"reminders":True,"public_profile":True}},
+            {"name":"Sara Gold","email":"sara@example.com","password":"Test1234","tier":"Hard","observance_level":"Strict","join_date":date.today()-timedelta(days=100),"current_streak":31,"longest_streak":45,"streak_start_date":date.today()-timedelta(days=30),"xp_current":120,"xp_total":15300,"level":15,"preferences":{"notifications":True,"reminders":False,"public_profile":False}},
+            {"name":"Ari Oz","email":"ari@example.com","password":"Test1234","tier":"Easy","observance_level":"Moderate","join_date":date.today()-timedelta(days=10),"current_streak":2,"longest_streak":5,"streak_start_date":date.today()-timedelta(days=1),"xp_current":50,"xp_total":500,"level":1,"preferences":{"notifications":False,"reminders":True,"public_profile":True}},
+        ]
+        for udata in demo_users:
+            hashed = get_password_hash(udata["password"])
+            user = models.User(
+                name=udata["name"],
+                email=udata["email"],
+                hashed_password=hashed,
+                tier=udata["tier"],
+                observance_level=udata["observance_level"],
+                join_date=udata["join_date"],
+                current_streak=udata["current_streak"],
+                longest_streak=udata["longest_streak"],
+                streak_start_date=udata["streak_start_date"],
+                xp_current=udata["xp_current"],
+                xp_total=udata["xp_total"],
+                level=udata["level"],
+                preferences=json.dumps(udata["preferences"]),
+            )
+            db.add(user)
+        db.commit()
+
+    # Friends and social network data
+    if db.query(models.Friend).count() == 0:
+        users_by_email = {u.email: u for u in db.query(models.User).all()}
+        relations = [
+            ("leah@example.com", "david@example.com"),
+            ("leah@example.com", "sara@example.com"),
+            ("david@example.com", "ari@example.com"),
+            ("sara@example.com", "ari@example.com"),
+        ]
+        for u_email, f_email in relations:
+            if users_by_email.get(u_email) and users_by_email.get(f_email):
+                db.add(models.Friend(user_id=users_by_email[u_email].id, friend_id=users_by_email[f_email].id))
+        db.commit()
+
+    # Messages between users to demonstrate chat flow
+    if db.query(models.Message).count() == 0:
+        users = {u.email: u for u in db.query(models.User).all()}
+        sample_messages = [
+            ("david@example.com", "leah@example.com", "Great job on your streak! Keep it going."),
+            ("leah@example.com", "david@example.com", "Thanks! This app really helps me stay focused."),
+            ("sara@example.com", "ari@example.com", "Have you tried the new Shabbat challenge?"),
+            ("ari@example.com", "sara@example.com", "Yes! I completed it yesterday and felt great."),
+        ]
+        for frm, to, text in sample_messages:
+            db.add(models.Message(from_user_id=users[frm].id, to_user_id=users[to].id, message=text, type="encouragement"))
+        db.commit()
+
+    # Generate recent checklist history for each user
+    if db.query(models.ChecklistItem).count() == 0:
+        task_list = db.query(models.Task).all()
+        user_list = db.query(models.User).all()
+        for user in user_list:
+            for back_days in range(1, 11):
+                d = date.today() - timedelta(days=back_days)
+                day_complete = back_days not in (3, 7)  # miss some days for realism
+                for task in task_list:
+                    completed = day_complete
+                    completed_at = datetime.combine(d, datetime.min.time()) + timedelta(hours=9) if completed else None
+                    db.add(models.ChecklistItem(user_id=user.id, task_id=task.id, date=d, completed=completed, completed_at=completed_at))
+        db.commit()
+
+    # Link achievements to some users
+    if db.query(models.UserAchievement).count() == 0:
+        all_achievements = {a.name: a for a in db.query(models.Achievement).all()}
+        users = {u.email: u for u in db.query(models.User).all()}
+        if "First Day" in all_achievements:
+            db.add(models.UserAchievement(user_id=users["leah@example.com"].id, achievement_id=all_achievements["First Day"].id))
+        if "7-Day Streak Master" in all_achievements:
+            db.add(models.UserAchievement(user_id=users["david@example.com"].id, achievement_id=all_achievements["7-Day Streak Master"].id))
+        if "Consistent Scholar" in all_achievements:
+            db.add(models.UserAchievement(user_id=users["sara@example.com"].id, achievement_id=all_achievements["Consistent Scholar"].id))
+        db.commit()
+
     db.commit()
 
 
