@@ -76,38 +76,41 @@
           <div class="card-grid">
             <div class="section">
               <h3>Today's Progress</h3>
-              <p class="small">0/10 tasks completed</p>
-              <div style="height:100px;width:100px;border-radius:50%;border: 8px solid #d5eefa; display:flex; align-items:center; justify-content:center; font-size:1.1rem; color: var(--primary);">0%</div>
+              <p id="dashboardProgressText" class="small">Loading...</p>
+              <div id="dashboardProgressCircle" style="height:100px;width:100px;border-radius:50%;border: 8px solid #d5eefa; display:flex; align-items:center; justify-content:center; font-size:1.1rem; color: var(--primary);">--</div>
             </div>
             <div class="section">
               <h3>Streak</h3>
-              <p class="marker">🔥 0 days</p>
-              <p class="small">Longest: 0</p>
+              <p id="dashboardStreak" class="marker">🔥 0 days</p>
+              <p id="dashboardLongest" class="small">Longest: 0</p>
             </div>
             <div class="section">
               <h3>Next Tasks</h3>
-              <ul>
-                <li>Modeh Ani</li>
-                <li>Morning prayer</li>
-                <li>Learn 1 daf</li>
+              <ul id="dashboardNextTasks">
+                <li>Loading tasks...</li>
               </ul>
             </div>
             <div class="section">
               <h3>Motivational Quote</h3>
-              <blockquote class="small">“Whoever saves a single life, it is as if he saved an entire world.”</blockquote>
+              <blockquote id="dashboardQuote" class="small">“Whoever saves a single life, it is as if he saved an entire world.”</blockquote>
             </div>
+          </div>
+          <div class="panel-controls" style="margin-top:12px;">
+              <button onclick="refreshDashboard()">Refresh Dashboard</button>
+              <button onclick="loadChecklist()">Load Today Checklist</button>
           </div>
         </article>
 
         <article id="checklist" class="page">
           <h2>Daily Checklist</h2>
+          <div class="section" style="margin-bottom:8px;">
+            <label>Date: <input id="checklistDate" type="date" value="2026-03-22"></label>
+            <button onclick="loadChecklist()">Load Checklist</button>
+          </div>
           <div class="section">
-            <p class="small">Interactive checklist and task details go here.</p>
-            <ol>
-              <li>Modeh Ani - <button>Check</button></li>
-              <li>Tallit & Tefillin - <button>Check</button></li>
-              <li>Daily learning - <button>Check</button></li>
-            </ol>
+            <ol id="checklistTasks"></ol>
+            <p id="checklistStatus" class="small">Choose date and load checklist.</p>
+            <pre id="checklistOutput" class="demo-debug"></pre>
           </div>
           <div class="section">
             <h4>Streak Impact</h4>
@@ -117,47 +120,70 @@
 
         <article id="calendar" class="page">
           <h2>Calendar</h2>
-          <div class="section">
-            <p class="small">Monthly calendar placeholder with holiday/Omer markers.</p>
-            <div style="height: 260px; border: 2px dashed #a0c4db; border-radius: 10px; display:flex; align-items:center; justify-content:center; color:#616f7f;">[Month view grid]</div>
+          <div class="section" style="margin-bottom:10px;">
+            <label>Fiscal (Hebrew) Year: <input id="holidayYear" type="number" value="2026"></label>
+            <button onclick="loadHolidays()">Load Holidays</button>
           </div>
-          <div class="section">
+          <div class="section" id="holidayList" style="margin-bottom:10px;">
             <h4>Jewish Calendar Highlights</h4>
-            <ul>
-              <li>Pesach - 15 Nisan</li>
-              <li>Shavuot - 6 Sivan</li>
-              <li>Sukkot - 15 Tishrei</li>
-            </ul>
+            <ul><li>No holiday data yet</li></ul>
           </div>
+          <div class="section" style="margin-bottom:10px;">
+            <label>Lat: <input id="lat" type="number" value="31.778"></label>
+            <label>Lng: <input id="lng" type="number" value="35.235"></label>
+            <label>Date: <input id="zmanimDate" type="date" value="2026-03-22"></label>
+            <button onclick="loadZmanim()">Load Zmanim</button>
+          </div>
+          <div class="section" id="zmanimInfo"></div>
+          <div class="section" style="margin-bottom:10px;">
+            <label>Omer Date: <input id="omerDate" type="date" value="2026-03-22"></label>
+            <button onclick="loadOmer()">Load Omer</button>
+          </div>
+          <div class="section" id="omerInfo"></div>
+          <pre id="calendarOutput" class="demo-debug"></pre>
         </article>
 
         <article id="social" class="page">
           <h2>Social</h2>
           <div class="section">
             <h4>Friends</h4>
-            <p class="small">Search, add, and track friends’ streaks.</p>
-            <p>Users: user1, user2, user3</p>
+            <div style="margin-bottom: 6px;"><label>Friend ID: <input id="friendId" /></label> <button onclick="addFriend()">Add Friend</button> <button onclick="getFriends()">Refresh Friends</button></div>
+            <ul id="friendsList"><li>No friends yet</li></ul>
+            <pre id="friendsOutput" class="demo-debug"></pre>
           </div>
           <div class="section">
             <h4>Leaderboards</h4>
-            <p class="small">Top 5 by streak this week.</p>
-            <ol><li>Naftali - 48</li><li>Rachel - 34</li><li>...</li></ol>
+            <button onclick="friendLeaderboard()">Load Friends Leaderboard</button>
+            <ol id="leaderboardList"><li>No data yet</li></ol>
+          </div>
+          <div class="section">
+            <h4>Encouragement Message</h4>
+            <div><label>To user id: <input id="messageTo" /></label></div>
+            <div><label>Your message: <input id="messageText" style="width:100%" /></label></div>
+            <button onclick="sendMessage()">Send</button>
+            <pre id="messageOutput" class="demo-debug"></pre>
           </div>
         </article>
 
         <article id="profile" class="page">
           <h2>Profile & Settings</h2>
           <div class="section">
-            <p class="small">Username: Test User</p>
-            <p class="small">Tier: Easy</p>
-            <p class="small">Joined: 2025-01-01</p>
+            <p class="small">Name: <span id="profileName">–</span></p>
+            <p class="small">Email: <span id="profileEmail">–</span></p>
+            <p class="small">Tier: <span id="profileTier">–</span></p>
+            <p class="small">Joined: <span id="profileJoined">–</span></p>
+          </div>
+          <div class="section">
+            <h4>Tier Management</h4>
+            <label>New tier: <select id="profileTierSelect"><option>Easy</option><option>Medium</option><option>Advanced</option></select></label>
+            <button onclick="updateTier()">Update Tier</button>
           </div>
           <div class="section">
             <h4>Statistics</h4>
             <ul>
-              <li>Tasks completed: 0</li>
-              <li>Longest streak: 0</li>
-              <li>XP: 0</li>
+              <li>Current streak: <span id="profileCurrentStreak">0</span></li>
+              <li>Longest streak: <span id="profileLongestStreak">0</span></li>
+              <li>XP: <span id="profileXP">0</span></li>
             </ul>
           </div>
         </article>
@@ -165,13 +191,16 @@
         <article id="achievements" class="page">
           <h2>Achievements</h2>
           <div class="section">
-            <p class="small">Achievement gallery sample layout.</p>
-            <div class="card-grid">
-              <div style="padding:10px;border:1px dashed #b0cfe7;border-radius:10px;">New User</div>
-              <div style="padding:10px;border:1px dashed #b0cfe7;border-radius:10px;">First Checklist</div>
-              <div style="padding:10px;border:1px dashed #b0cfe7;border-radius:10px;">7-Day Streak</div>
-            </div>
+            <h4>Earned Achievements</h4>
+            <ul id="earnedAchievements"><li>No earned achievements yet</li></ul>
+            <button onclick="loadAchievements()">Refresh Achievements</button>
           </div>
+          <div class="section">
+            <h4>Available Achievements</h4>
+            <ul id="availableAchievements"><li>Loading...</li></ul>
+            <button onclick="loadAvailableAchievements()">Load Available</button>
+          </div>
+          <pre id="achievementsOutput" class="demo-debug"></pre>
         </article>
       </section>
 
@@ -209,16 +238,36 @@
       const page = document.getElementById(pageId);
       if (page) page.classList.add('active');
       document.getElementById('devtools').style.display = pageId === 'devtools' ? 'block' : 'none';
+
+      if (pageId === 'dashboard') refreshDashboard();
+      if (pageId === 'checklist') loadChecklist();
+      if (pageId === 'calendar') loadHolidays();
+      if (pageId === 'social') { getFriends(); friendLeaderboard(); }
+      if (pageId === 'profile') fetchProfile();
+      if (pageId === 'achievements') { loadAchievements(); loadAvailableAchievements(); }
     }
 
-    function setResult(id, data){
+    function setResult(id, data) {
       const content = JSON.stringify(data, null, 2);
-      document.getElementById(id).textContent = content;
+      const target = document.getElementById(id);
+      if (target) target.textContent = content;
       const debug = document.getElementById('debugOutput');
       if (debug) debug.textContent = `${id}: ${content}`;
     }
 
-    async function register(){
+    function updateProfileUI(profile) {
+      if (!profile) return;
+      document.getElementById('profileName').textContent = profile.name;
+      document.getElementById('profileEmail').textContent = profile.email;
+      document.getElementById('profileTier').textContent = profile.tier;
+      document.getElementById('profileJoined').textContent = profile.join_date;
+      document.getElementById('profileCurrentStreak').textContent = profile.current_streak;
+      document.getElementById('profileLongestStreak').textContent = profile.longest_streak;
+      document.getElementById('profileXP').textContent = profile.xp_current;
+      document.getElementById('profileTierSelect').value = profile.tier;
+    }
+
+    async function register() {
       const payload = {
         name: document.getElementById('name').value,
         email: document.getElementById('email').value,
@@ -226,172 +275,284 @@
         tier: document.getElementById('tier').value,
         observance_level: 'Moderate'
       };
-      const res = await fetch('/users/register', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+      const res = await fetch('/users/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
       const data = await res.json();
-      if(res.ok){
+      if (res.ok) {
         authToken = data.access_token;
         document.getElementById('token').textContent = 'Registered and token set';
         await fetchProfile();
+        refreshDashboard();
       } else {
         document.getElementById('token').textContent = 'Register error: ' + JSON.stringify(data);
       }
+      setResult('profileOutput', data);
+      return data;
     }
 
-    async function login(){
+    async function login() {
       const payload = { email: document.getElementById('email').value, password: document.getElementById('password').value };
-      const res = await fetch('/users/login', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+      const res = await fetch('/users/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
       const data = await res.json();
-      if(res.ok){
+      if (res.ok) {
         authToken = data.access_token;
         document.getElementById('token').textContent = 'Logged in';
         await fetchProfile();
+        refreshDashboard();
       } else {
         document.getElementById('token').textContent = 'Login error: ' + JSON.stringify(data);
       }
+      setResult('profileOutput', data);
+      return data;
     }
 
-    async function fetchProfile(){
-      if(!authToken) return;
-      const res = await fetch('/users/me', { headers:{ Authorization:'Bearer ' + authToken }});
+    async function fetchProfile() {
+      if (!authToken) return;
+      const res = await fetch('/users/me', { headers: { Authorization: 'Bearer ' + authToken } });
       const profile = await res.json();
-      if(res.ok){
+      if (res.ok) {
         userId = profile.id;
-        setResult('profileOutput', profile);
-      } else {
-        setResult('profileOutput', profile);
+        updateProfileUI(profile);
       }
+      setResult('profileOutput', profile);
       return profile;
     }
 
-    async function updateTier(){
-      if(!authToken || !userId) return alert('Login first');
-      const tier = document.getElementById('tier').value;
-      const res = await fetch(`/users/${userId}/tier`, { method:'PUT', headers:{'Content-Type':'application/json', Authorization:'Bearer '+authToken}, body: JSON.stringify({tier}) });
-      setResult('profileOutput', await res.json());
-      await fetchProfile();
+    async function updateTier() {
+      if (!authToken || !userId) return alert('Login first');
+      const tier = document.getElementById('profileTierSelect').value;
+      const res = await fetch(`/users/${userId}/tier`, { method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + authToken }, body: JSON.stringify({ tier }) });
+      const body = await res.json();
+      setResult('profileOutput', body);
+      if (res.ok) {
+        await fetchProfile();
+      }
+      return body;
     }
 
-    async function fetchChecklist(){
-      if(!authToken || !userId) return alert('login first');
+    async function loadChecklist() {
+      if (!authToken || !userId) return alert('Login first');
       const d = document.getElementById('checklistDate').value;
-      const res = await fetch(`/users/${userId}/checklist/${d}`, {headers:{Authorization:'Bearer '+authToken}});
+      const res = await fetch(`/users/${userId}/checklist/${d}`, { headers: { Authorization: 'Bearer ' + authToken } });
       const json = await res.json();
       setResult('checklistOutput', json);
-      if(res.ok && Array.isArray(json.tasks)){
-        const list = document.getElementById('checklistTasks');
-        list.innerHTML = '';
-        json.tasks.forEach(t=>{
+      const list = document.getElementById('checklistTasks');
+      list.innerHTML = '';
+      if (res.ok && Array.isArray(json.tasks)) {
+        json.tasks.forEach(t => {
           const li = document.createElement('li');
-          li.innerHTML = `${t.task_id} - completed: ${t.completed} <button onclick="completeTask('${d}','${t.task_id}')">Mark done</button>`;
+          li.innerHTML = `<label><input type="checkbox" ${t.completed ? 'checked':''} onchange="toggleChecklistItem('${d}', '${t.task_id}', this.checked)" /> ${t.task_id}</label> <span class="small">${t.completed_at || ''}</span>`;
           list.appendChild(li);
         });
+        document.getElementById('checklistStatus').textContent = `${json.tasks.filter(t => t.completed).length}/${json.tasks.length} tasks completed`;
+      } else {
+        document.getElementById('checklistStatus').textContent = 'Unable to load checklist';
       }
+      return json;
     }
 
-    async function completeTask(date, taskId){
-      if(!authToken || !userId) return alert('login first');
-      const payload = { task_id: taskId, completed: true, completed_at: new Date().toISOString() };
-      const res = await fetch(`/users/${userId}/checklist/${date}/complete`, { method:'POST', headers:{'Content-Type':'application/json', Authorization:'Bearer '+authToken}, body: JSON.stringify(payload) });
-      setResult('checklistOutput', await res.json());
-      await fetchChecklist();
-      await fetchStreak();
+    async function toggleChecklistItem(date, taskId, state) {
+      if (!authToken || !userId) return alert('Login first');
+      const payload = { task_id: taskId, completed: state, completed_at: state ? new Date().toISOString() : null };
+      const res = await fetch(`/users/${userId}/checklist/${date}/complete`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + authToken }, body: JSON.stringify(payload) });
+      const r = await res.json();
+      setResult('checklistOutput', r);
       await fetchProgress();
+      await fetchStreak();
+      return r;
     }
 
-    async function fetchProgress(){
-      if(!authToken || !userId) return alert('login first');
-      const res = await fetch(`/users/${userId}/checklist/progress`, { headers:{ Authorization:'Bearer '+authToken }});
-      setResult('checklistOutput', await res.json());
+    async function fetchProgress() {
+      if (!authToken || !userId) return alert('login first');
+      const res = await fetch(`/users/${userId}/checklist/progress`, { headers: { Authorization: 'Bearer ' + authToken } });
+      const json = await res.json();
+      setResult('checklistOutput', json);
+      const percent = Math.round(json.percentage || 0);
+      const total = json.total_tasks || 0;
+      const completed = json.completed_tasks || 0;
+      document.getElementById('dashboardProgressText').textContent = `${completed}/${total} tasks completed`;
+      document.getElementById('dashboardProgressCircle').textContent = `${percent}%`;
+      return json;
     }
 
-    async function fetchStreak(){
-      if(!authToken || !userId) return alert('login first');
-      const res = await fetch(`/users/${userId}/streak`, { headers:{ Authorization:'Bearer '+authToken }});
-      setResult('streakOutput', await res.json());
+    async function fetchStreak() {
+      if (!authToken || !userId) return alert('login first');
+      const res = await fetch(`/users/${userId}/streak`, { headers: { Authorization: 'Bearer ' + authToken } });
+      const json = await res.json();
+      setResult('streakOutput', json);
+      document.getElementById('dashboardStreak').textContent = `🔥 ${json.current_streak || 0} days`;
+      document.getElementById('dashboardLongest').textContent = `Longest: ${json.longest_streak || 0}`;
+      return json;
     }
 
-    async function fetchStreakHistory(){
-      if(!authToken || !userId) return alert('login first');
-      const res = await fetch(`/users/${userId}/streak/history`, { headers:{ Authorization:'Bearer '+authToken }});
-      setResult('streakOutput', await res.json());
+    async function fetchStreakHistory() {
+      if (!authToken || !userId) return alert('login first');
+      const res = await fetch(`/users/${userId}/streak/history`, { headers: { Authorization: 'Bearer ' + authToken } });
+      const json = await res.json();
+      setResult('streakOutput', json);
+      return json;
     }
 
-    async function fetchHolidays(){
+    async function loadHolidays() {
       const year = document.getElementById('holidayYear').value || new Date().getFullYear();
       const res = await fetch(`/calendar/holidays/${year}`);
-      setResult('calendarOutput', await res.json());
+      const json = await res.json();
+      setResult('calendarOutput', json);
+      const list = document.getElementById('holidayList');
+      if (Array.isArray(json)) {
+        list.innerHTML = '<h4>Jewish Calendar Highlights</h4><ul>' + json.map(h => `<li>${h.date}: ${h.name} — ${h.description}</li>`).join('') + '</ul>';
+      }
+      return json;
     }
 
-    async function fetchZmanim(){
+    async function loadZmanim() {
       const lat = document.getElementById('lat').value || 31.778;
       const lng = document.getElementById('lng').value || 35.235;
       const date = document.getElementById('zmanimDate').value || new Date().toISOString().split('T')[0];
       const res = await fetch(`/calendar/zmanim?lat=${lat}&lng=${lng}&date=${date}`);
-      setResult('calendarOutput', await res.json());
+      const json = await res.json();
+      setResult('calendarOutput', json);
+      document.getElementById('zmanimInfo').textContent = `Shacharis: ${json.shacharis}, Mincha: ${json.mincha}, Maariv: ${json.maariv}, Candle lighting: ${json.candle_lighting}`;
+      return json;
     }
 
-    async function fetchOmer(){
+    async function loadOmer() {
       const date = document.getElementById('omerDate').value || new Date().toISOString().split('T')[0];
       const res = await fetch(`/calendar/omer/${date}`);
-      setResult('calendarOutput', await res.json());
+      const json = await res.json();
+      setResult('calendarOutput', json);
+      if (res.ok) {
+        document.getElementById('omerInfo').textContent = `Day ${json.day}, week ${json.week} / ${json.total_days}: ${json.bracha}`;
+      } else {
+        document.getElementById('omerInfo').textContent = `Error: ${json.detail || 'Invalid date'}`;
+      }
+      return json;
     }
 
-    async function getFriends(){
-      if(!authToken || !userId) return alert('login first');
-      const res = await fetch(`/users/${userId}/friends`, { headers:{ Authorization:'Bearer '+authToken }});
-      setResult('friendsOutput', await res.json());
+    async function getFriends() {
+      if (!authToken || !userId) return alert('login first');
+      const res = await fetch(`/users/${userId}/friends`, { headers: { Authorization: 'Bearer ' + authToken } });
+      const json = await res.json();
+      setResult('friendsOutput', json);
+      const list = document.getElementById('friendsList');
+      if (Array.isArray(json) && json.length) {
+        list.innerHTML = json.map(f => `<li>${f.friend_id}</li>`).join('');
+      } else {
+        list.innerHTML = '<li>No friends yet</li>';
+      }
+      return json;
     }
 
-    async function addFriend(){
-      if(!authToken || !userId) return alert('login first');
+    async function addFriend() {
+      if (!authToken || !userId) return alert('login first');
       const fid = document.getElementById('friendId').value;
-      const res = await fetch(`/users/${userId}/friends/${fid}`, { method:'POST', headers:{ Authorization:'Bearer '+authToken }});
-      setResult('friendsOutput', await res.json());
+      const res = await fetch(`/users/${userId}/friends/${fid}`, { method: 'POST', headers: { Authorization: 'Bearer ' + authToken } });
+      const json = await res.json();
+      setResult('friendsOutput', json);
       await getFriends();
+      return json;
     }
 
-    async function friendLeaderboard(){
-      if(!authToken || !userId) return alert('login first');
-      const res = await fetch(`/leaderboard/friends/${userId}`, { headers:{ Authorization:'Bearer '+authToken }});
-      setResult('friendsOutput', await res.json());
+    async function friendLeaderboard() {
+      if (!authToken || !userId) return alert('login first');
+      const res = await fetch(`/leaderboard/friends/${userId}`, { headers: { Authorization: 'Bearer ' + authToken } });
+      const json = await res.json();
+      setResult('friendsOutput', json);
+      const board = document.getElementById('leaderboardList');
+      if (Array.isArray(json) && json.length) {
+        board.innerHTML = json.map(u => `<li>${u.name} - ${u.current_streak} days</li>`).join('');
+      } else {
+        board.innerHTML = '<li>No leaderboard data</li>';
+      }
+      return json;
     }
 
-    async function getAchievements(){
-      if(!authToken || !userId) return alert('login first');
-      const res = await fetch(`/users/${userId}/achievements`, { headers:{ Authorization:'Bearer '+authToken }});
-      setResult('achievementsOutput', await res.json());
+    async function sendMessage() {
+      if (!authToken || !userId) return alert('login first');
+      const payload = {
+        from_user_id: userId,
+        to_user_id: document.getElementById('messageTo').value,
+        message: document.getElementById('messageText').value,
+        type: 'encouragement'
+      };
+      const res = await fetch('/messages/send', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + authToken }, body: JSON.stringify(payload) });
+      const json = await res.json();
+      setResult('messageOutput', json);
+      return json;
     }
 
-    async function getAvailableAchievements(){
+    async function loadAchievements() {
+      if (!authToken || !userId) return alert('login first');
+      const res = await fetch(`/users/${userId}/achievements`, { headers: { Authorization: 'Bearer ' + authToken } });
+      const json = await res.json();
+      setResult('achievementsOutput', json);
+      const list = document.getElementById('earnedAchievements');
+      if (Array.isArray(json) && json.length) {
+        list.innerHTML = json.map(a => `<li>${a.name} - ${a.description} ${a.earned_date ? `(${a.earned_date})` : ''}</li>`).join('');
+      } else {
+        list.innerHTML = '<li>No achievements earned yet</li>';
+      }
+      return json;
+    }
+
+    async function loadAvailableAchievements() {
       const res = await fetch('/achievements/available');
-      setResult('achievementsOutput', await res.json());
+      const json = await res.json();
+      setResult('achievementsOutput', json);
+      const list = document.getElementById('availableAchievements');
+      if (Array.isArray(json) && json.length) {
+        list.innerHTML = json.map(a => `<li>${a.name} - ${a.description}</li>`).join('');
+      } else {
+        list.innerHTML = '<li>No available achievements</li>';
+      }
+      return json;
     }
 
-    async function getXP(){
-      if(!authToken || !userId) return alert('login first');
-      const res = await fetch(`/users/${userId}/xp`, { headers:{ Authorization:'Bearer '+authToken }});
-      setResult('xpOutput', await res.json());
+    async function getXP() {
+      if (!authToken || !userId) return alert('login first');
+      const res = await fetch(`/users/${userId}/xp`, { headers: { Authorization: 'Bearer ' + authToken } });
+      const json = await res.json();
+      setResult('xpOutput', json);
+      document.getElementById('profileXP').textContent = json.xp_current || 0;
+      return json;
     }
 
-    async function addXP(){
-      if(!authToken || !userId) return alert('login first');
+    async function addXP() {
+      if (!authToken || !userId) return alert('login first');
       const points = Number(document.getElementById('xpPoints').value || 100);
-      const payload = { points, source:'manual', metadata:{ note:'handy add' }};
-      const res = await fetch(`/users/${userId}/xp/add`, { method:'POST', headers:{'Content-Type':'application/json', Authorization:'Bearer '+authToken}, body: JSON.stringify(payload) });
-      setResult('xpOutput', await res.json());
+      const payload = { points, source: 'manual', metadata: { note: 'handy add' } };
+      const res = await fetch(`/users/${userId}/xp/add`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + authToken }, body: JSON.stringify(payload) });
+      const json = await res.json();
+      setResult('xpOutput', json);
+      await getXP();
+      return json;
     }
 
-    async function getRewards(){
-      if(!authToken || !userId) return alert('login first');
-      const res = await fetch(`/users/${userId}/rewards`, { headers:{ Authorization:'Bearer '+authToken }});
-      setResult('rewardsOutput', await res.json());
+    async function getRewards() {
+      if (!authToken || !userId) return alert('login first');
+      const res = await fetch(`/users/${userId}/rewards`, { headers: { Authorization: 'Bearer ' + authToken } });
+      const json = await res.json();
+      setResult('rewardsOutput', json);
+      const list = document.getElementById('rewardsOutput');
+      return json;
     }
 
-    async function redeemReward(){
-      if(!authToken || !userId) return alert('login first');
+    async function redeemReward() {
+      if (!authToken || !userId) return alert('login first');
       const rewardId = document.getElementById('rewardId').value;
-      const res = await fetch(`/users/${userId}/rewards/redeem`, { method:'POST', headers:{'Content-Type':'application/json', Authorization:'Bearer '+authToken}, body: JSON.stringify({ reward_id: rewardId })});
-      setResult('rewardsOutput', await res.json());
+      const res = await fetch(`/users/${userId}/rewards/redeem`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + authToken }, body: JSON.stringify({ reward_id: rewardId }) });
+      const json = await res.json();
+      setResult('rewardsOutput', json);
+      await getRewards();
+      return json;
+    }
+
+    async function refreshDashboard() {
+      await fetchProfile();
+      await fetchProgress();
+      await fetchStreak();
+      await loadChecklist();
+      await loadAchievements();
+      await loadAvailableAchievements();
     }
 
   </script>
