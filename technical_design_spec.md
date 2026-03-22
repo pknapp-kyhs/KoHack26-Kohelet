@@ -7,7 +7,7 @@
 ### Architecture
 - **Backend**: Python-based API server with data persistence
 - **Frontend**: Web application (designed by separate team)
-- **Data Storage**: JSON-based file system with potential for database migration
+- **Data Storage**: SQLite relational database (preferred) with JSON fixtures/migration support
 - **External APIs**: Jewish calendar and zmanim (prayer times) integration
 
 ## Backend API Specification
@@ -113,6 +113,24 @@ GET /users/{user_id}/achievements
 GET /achievements/available
 - Get all available achievements
 - Returns: Array of achievement definitions
+
+GET /users/{user_id}/xp
+- Get current XP and level
+- Returns: {xp_current, xp_to_next_level, level, total_xp}
+
+POST /users/{user_id}/xp/add
+- Add XP points to user (tasks completed, streak milestone)
+- Body: {points, source, metadata}
+- Returns: {xp_current, level, new_achievements: []}
+
+GET /users/{user_id}/rewards
+- Get available and unlocked in-app rewards
+- Returns: Array of reward objects
+
+POST /users/{user_id}/rewards/redeem
+- Redeem a reward with XP or milestone
+- Body: {reward_id}
+- Returns: {success, remaining_xp, reward_details}
 ```
 
 ## Frontend Design Specification
@@ -208,8 +226,15 @@ GET /achievements/available
     "longest": 0,
     "start_date": "2024-01-01"
   },
+  "xp": {
+    "current": 1200,
+    "total": 5400,
+    "level": 7,
+    "next_level_xp": 1600
+  },
   "join_date": "2024-01-01",
   "achievements": ["achievement_id"],
+  "rewards": ["reward_id"],
   "preferences": {
     "notifications": true,
     "reminders": true,
@@ -245,6 +270,29 @@ GET /achievements/available
     }
   ],
   "progress_percentage": 75
+}
+```
+
+### Achievement Model
+```json
+{
+  "id": "achievement_uuid",
+  "name": "7-Day Streak Master",
+  "description": "Complete full daily checklist 7 days in a row",
+  "xp_reward": 200,
+  "icon": "badge7.png",
+  "criteria": "streak >= 7"
+}
+```
+
+### Reward Model
+```json
+{
+  "id": "reward_uuid",
+  "name": "Premium Theme Pack",
+  "description": "Unlock special UI theme",
+  "xp_cost": 1000,
+  "is_unlocked": false
 }
 ```
 
