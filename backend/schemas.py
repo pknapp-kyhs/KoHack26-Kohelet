@@ -1,6 +1,6 @@
 from datetime import datetime, date
 from typing import List, Optional, Dict, Any
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, field_validator
 
 
 class Token(BaseModel):
@@ -22,10 +22,26 @@ class UserBase(BaseModel):
 class UserCreate(UserBase):
     password: str
 
+    @field_validator('password')
+    @classmethod
+    def validate_password_length(cls, v):
+        if len(v.encode('utf-8')) > 72:
+            # Truncate to 72 bytes to comply with bcrypt limit
+            return v.encode('utf-8')[:72].decode('utf-8', errors='ignore')
+        return v
+
 
 class UserLogin(BaseModel):
     email: EmailStr
     password: str
+
+    @field_validator('password')
+    @classmethod
+    def validate_password_length(cls, v):
+        if len(v.encode('utf-8')) > 72:
+            # Truncate to 72 bytes for login too
+            return v.encode('utf-8')[:72].decode('utf-8', errors='ignore')
+        return v
 
 
 class UserProfile(BaseModel):
@@ -44,7 +60,7 @@ class UserProfile(BaseModel):
     preferences: Dict[str, Any]
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class TierUpdate(BaseModel):
@@ -64,7 +80,7 @@ class TaskBase(BaseModel):
 class Task(TaskBase):
     id: str
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class ChecklistItemCreate(BaseModel):
@@ -79,7 +95,7 @@ class ChecklistItemResponse(BaseModel):
     completed_at: Optional[datetime]
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class ChecklistResponse(BaseModel):
@@ -121,7 +137,7 @@ class AchievementResponse(BaseModel):
     icon: Optional[str]
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class RewardResponse(BaseModel):
@@ -132,7 +148,7 @@ class RewardResponse(BaseModel):
     is_unlocked: bool
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class XPAdd(BaseModel):

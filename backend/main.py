@@ -1,14 +1,25 @@
 from datetime import date, datetime, timedelta
 from typing import List
 from fastapi import FastAPI, HTTPException, Depends, Header, status
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 from . import models, schemas, auth, database
 from .database import engine, get_db
 from .auth import create_access_token, verify_password, get_password_hash, decode_access_token
+import os
 
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="2Jew List API")
+frontend_path = os.path.join(os.path.dirname(__file__), "..", "frontend")
+app.mount("/app", StaticFiles(directory=frontend_path, html=True), name="frontend")
+
+
+@app.get("/")
+def root():
+    return FileResponse(os.path.join(os.path.dirname(__file__), "..", "frontend", "index.html"))
+
 
 
 def get_current_user(authorization: str = Header(...), db: Session = Depends(get_db)) -> models.User:
@@ -79,6 +90,11 @@ def login_user(login: schemas.UserLogin, db: Session = Depends(get_db)):
         raise HTTPException(status_code=401, detail="Invalid email or password")
     token = create_access_token({"sub": user.id})
     return {"access_token": token, "token_type": "bearer"}
+
+
+@app.get("/users/me", response_model=schemas.UserProfile)
+def get_user_me(current_user: models.User = Depends(get_current_user)):
+    return current_user
 
 
 @app.get("/users/{user_id}", response_model=schemas.UserProfile)
