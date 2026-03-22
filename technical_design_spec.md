@@ -140,9 +140,18 @@ POST /users/{user_id}/rewards/redeem
 #### 1. Authentication Pages
 - **Login/Register Form**
   - Email/password fields with validation
-  - Tier selection dropdown (Easy/Medium/Advanced)
+  - "Onboarding questionnaire" button (replaces manual tier selection)
   - "Forgot Password" link
   - Social login options (optional)
+
+- **Onboarding questionnaire**:
+  - 5–7 questions about current habits and goals
+  - Example question: "Do you currently complete a full morning prayer cycle daily?"
+  - Example question: "Are you currently learning a daf yomi page every day?"
+  - Example question: "Can you commit 30 minutes to daily learning?"
+  - Responses map to `Easy` / `Medium` / `Advanced`
+  - Result shown as "Recommended tier" with ability to confirm
+  - Also sets default task difficulty and initial streak targets
 
 #### 2. Dashboard (Main Landing Page)
 - **Header**: User avatar, name, current streak counter, tier badge
