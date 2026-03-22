@@ -1,0 +1,131 @@
+2Jew List – Project Framework & Goals
+🎯 Project Vision
+Create a personalized, gamified app that helps Jews of all levels build consistency in mitzvos through structured tracking, social accountability, and meaningful growth systems.
+
+🧩 Core Concept
+2Jew List is a "Jewish Checklist" app with tiered difficulty levels that guides users through daily and weekly mitzvos while tracking progress, building streaks, and fostering community engagement.
+
+📊 Core Features
+1. Tier System (User Levels)
+Easy: Basic daily mitzvos (Modeh Ani, Shema, brachos)
+Medium: Adds structured tefillah, daily learning
+Advanced: Full commitment (Daf Yomi, Shnayim Mikra, 3 tefillos, etc.)
+➡ Goal: Make the app accessible for beginners while still challenging advanced users.
+
+2. Daily Checklist System
+Users receive a daily checklist based on their tier
+Tasks include:
+Davening (3 times daily)
+Daily learning
+Saying brachos
+Tzedaka
+Shema / Modeh Ani
+Daf Yomi
+Shnayim Mikra
+➡ Goal: Build consistency through structure.
+
+3. Streak & Progress System
+Users build a daily streak by completing all tasks
+Streak strength increases with higher tiers
+Enhancements:
+Progress bars for daily completion
+Streak milestones (7, 30, 100 days)
+Optional “streak freeze” for missed days
+➡ Goal: Encourage long-term consistency without discouragement.
+
+4. Jewish Calendar Integration
+Built-in calendar including:
+Holidays
+Shabbos times
+Omer counting
+Enhancements:
+Automatic zmanim (tefillah times)
+Holiday reminders
+➡ Goal: Make the app a daily-use utility, not just a tracker.
+
+5. Community & Social Features
+Add friends
+View friends’ streaks
+User profiles with Jewish identity/bio
+Upgraded Features:
+Send encouragement messages ("Nice streak! 🔥")
+Group challenges (e.g., "Complete Shacharis all week")
+Leaderboards (friends/global)
+➡ Goal: Create accountability and motivation through social interaction.
+
+🚀 Advanced / “Wow Factor” Features
+1. Smart Personalization
+Onboarding questions:
+Current level of observance
+Personal goals
+App generates a customized checklist
+➡ Goal: Tailor the experience to each user.
+
+2. Growth Modes
+Lite Mode: Minimal tasks to avoid overwhelm
+Growth Mode: Gradually increases difficulty
+➡ Goal: Support sustainable improvement.
+
+3. Achievement & Reward System
+(Replace external Instagram system)
+In-app badges
+XP / leveling system
+Achievement titles (e.g., "30-Day Streak Master")
+Optional:
+Share achievements to social media
+➡ Goal: Make rewards scalable and integrated.
+
+4. Reflection & Meaning
+Optional daily reflection prompts:
+"How did davening feel today?"
+➡ Goal: Add emotional and spiritual depth.
+
+5. Recovery System
+Encouraging messages after missed days
+Streak protection tools
+➡ Goal: Prevent users from quitting after setbacks.
+
+⚠️ Key Improvements from Original Idea
+Replace Instagram DM System
+Original: Send streaks via Instagram for rewards
+Issue: Not scalable, feels manual
+Solution:
+Fully integrated in-app reward system
+
+Strengthen Community Purpose
+Original: Profiles + bios only
+Solution:
+Add interaction, challenges, and encouragement
+
+Increase Daily Engagement
+Add reminders and notifications
+Visual progress tracking
+➡ Goal: Make users return daily
+
+🏆 Product Positioning (Pitch Line)
+2Jew List is a personalized, gamified platform that helps Jews build consistency in mitzvos through structured tracking, social accountability, and adaptive growth systems.
+
+🧠 Success Criteria
+A successful app should:
+Be easy for beginners
+Challenge advanced users
+Encourage daily engagement
+Build long-term habits
+Create a supportive community
+Provide meaningful—not just mechanical—growth
+
+📌 Naming Consideration
+Current Name: 2Jew List
+Pros:
+Clever play on “to-do list”
+Memorable
+Cons:
+Could be confusing or feel gimmicky
+Recommended Approach:
+Option:
+2Jew List
+Your Daily Mitzvah Tracker
+➡ Keeps creativity while adding clarity and professionalism.
+
+🏁 Final Goal
+Build an app that doesn’t just track mitzvos—but helps users grow, stay consistent, and feel connected to their Judaism every single day.

@@ -1,0 +1,36 @@
+Low (1 point each)
+Single variable From/While loop (uses basic boolean data types (float, double, bool, string, int, char))
+Basic conditionals
+List (array) and iteration (e.g. int to string, manipulation on modules i.e. average, divide, mod)
+Basic data storage (i.e. status/error message)
+Data validation – checks user input (i.e. 4 vs four)
+Sensible output displayed from program
+Form validation – checks all required fields are filled submission
+Medium (2 points each)
+Function that takes/returns parameters
+Data validation – checks the input data matches data type (i.e. email is an email, phone number, date valid)
+Multi Variable Loops
+User Defined Functions
+Complex AND/OR conditionals
+Connection between more than one language (front end to back end, HTML with Python or JS)
+Class/object with simple data types (i.e. name, age, grade)
+Use of string and substring operations, parsing
+Appropriate use of Abstraction (function/class)
+Data is stored in multiple files/modules or project files
+Graphical output
+High (3 points each)
+Advanced data validation – checks that input data meets certain criteria (Examples: password has uppercase and contains at least one uppercase and one special character)
+Date entered is in the correct format (not in the past or too far in the future)
+Appropriate data structure (Algorithm stack, tree, queue)
+Advanced algorithms
+Appropriate use of Class/Objects with inheritance
+Class methods
+Database and/or retrieve data from internet (API)
+Derive data from API or external data
+Sets
+Dictionary or Data Sort algorithm on List/Array
+Graphical interface
+Scoring
+Low: ___ × 1 = ___ points
+Medium: ___ × 2 = ___ points
+High: ___ × 3 = ___ points
