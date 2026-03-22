@@ -367,11 +367,11 @@ def redeem_reward(user_id: str, payload: dict, current_user: models.User = Depen
     reward = db.query(models.Reward).filter(models.Reward.id == reward_id).first()
     if not reward:
         raise HTTPException(status_code=404, detail="Reward not found")
-    if current_user.xp_current < reward.xp_cost:
+    if current_user.xp_total < reward.xp_cost:
         raise HTTPException(status_code=400, detail="Not enough XP")
     if db.query(models.UserReward).filter(models.UserReward.user_id == user_id, models.UserReward.reward_id == reward_id).first():
         return {"success": False, "message": "Already redeemed"}
-    current_user.xp_current -= reward.xp_cost
+    current_user.xp_total -= reward.xp_cost
     db.add(models.UserReward(user_id=user_id, reward_id=reward_id))
     db.commit()
-    return {"success": True, "remaining_xp": current_user.xp_current, "reward_details": {"id": reward.id, "name": reward.name, "description": reward.description}}
+    return {"success": True, "remaining_xp": current_user.xp_total, "reward_details": {"id": reward.id, "name": reward.name, "description": reward.description}}
