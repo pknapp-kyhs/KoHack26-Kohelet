@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, date
 from sqlalchemy import Column, String, Integer, DateTime, Boolean, ForeignKey, Date, Text
 from sqlalchemy.orm import relationship
 from .database import Base
@@ -17,7 +17,7 @@ class User(Base):
     hashed_password = Column(String, nullable=False)
     tier = Column(String, default="Easy")
     observance_level = Column(String, default="Moderate")
-    join_date = Column(Date, default=datetime.utcnow)
+    join_date = Column(Date, default=date.today)
     current_streak = Column(Integer, default=0)
     longest_streak = Column(Integer, default=0)
     streak_start_date = Column(Date, nullable=True)

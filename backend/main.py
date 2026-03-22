@@ -1,5 +1,5 @@
 from datetime import date, datetime, timedelta
-from typing import List
+from typing import Any, Dict, List
 from fastapi import FastAPI, HTTPException, Depends, Header, status
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from . import models, schemas, auth, database
 from .database import engine, get_db
 from .auth import create_access_token, verify_password, get_password_hash, decode_access_token
+import json
 import os
 
 models.Base.metadata.create_all(bind=engine)
@@ -92,9 +93,33 @@ def login_user(login: schemas.UserLogin, db: Session = Depends(get_db)):
     return {"access_token": token, "token_type": "bearer"}
 
 
+def format_user_profile(user: models.User) -> Dict[str, Any]:
+    prefs = user.preferences
+    if isinstance(prefs, str):
+        try:
+            prefs = json.loads(prefs)
+        except Exception:
+            prefs = {}
+    return {
+        "id": user.id,
+        "name": user.name,
+        "email": user.email,
+        "tier": user.tier,
+        "observance_level": user.observance_level,
+        "join_date": user.join_date,
+        "current_streak": user.current_streak,
+        "longest_streak": user.longest_streak,
+        "streak_start_date": user.streak_start_date,
+        "xp_current": user.xp_current,
+        "xp_total": user.xp_total,
+        "level": user.level,
+        "preferences": prefs,
+    }
+
+
 @app.get("/users/me", response_model=schemas.UserProfile)
 def get_user_me(current_user: models.User = Depends(get_current_user)):
-    return current_user
+    return format_user_profile(current_user)
 
 
 @app.get("/users/{user_id}", response_model=schemas.UserProfile)
