@@ -5,90 +5,218 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>2Jew List Demo</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 16px; }
-    .panel { border: 1px solid #ddd; border-radius: 8px; padding: 16px; margin-bottom: 16px; }
-    .small { color: #666; font-size: 0.95em; }
-    button { margin-top: 8px; }
-    pre { background: #f9f9f9; padding: 12px; overflow-x:auto; }
+    :root {
+      --primary: #00a7d5;
+      --primary-dark: #0084b0;
+      --accent: #f5b800;
+      --bg: #e7f6ff;
+      --panel: #ffffff;
+      --text: #1f2937;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      background: linear-gradient(180deg, #bef0ff 0%, #f6fbff 100%);
+      color: var(--text);
+    }
+    .app-shell { min-height: 100vh; display: flex; flex-direction: column; }
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--primary);
+      color: #fff;
+      padding: 12px 20px;
+      box-shadow: 0 3px 8px rgba(0,0,0,.15);
+    }
+    .brand { display: flex; align-items: center; gap: 10px; font-size: 1.4rem; font-weight: 700; }
+    .brand img { width: 38px; height: 38px; }
+    .nav-icons { display: flex; gap: 10px; }
+    .nav-icon { border: 1px solid rgba(255,255,255,.45); border-radius: 50%; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s all; }
+    .nav-icon:hover { background: rgba(255,255,255,.2); transform: translateY(-1px); }
+    .content { display: flex; gap: 20px; padding: 16px; flex: 1; }
+    .main { flex: 1; }
+    .side-panel { width: 320px; background: var(--panel); border-radius: 14px; box-shadow: 0 2px 12px rgba(0,0,0,.08); padding: 14px; }
+    .page { display: none; }
+    .page.active { display: block; }
+    .section { background: var(--panel); border-radius: 12px; padding: 16px; margin-bottom: 16px; box-shadow: 0 1px 8px rgba(0,0,0,.08); }
+    h1,h2,h3,h4 { margin: 0 0 10px; }
+    .panel-controls { display: flex; gap: 8px; flex-wrap: wrap; }
+    .panel-controls button, .topbar button { background: var(--accent); border: none; color: #fff; border-radius: 8px; padding: 8px 12px; cursor: pointer; }
+    .panel-controls button:hover, .topbar button:hover { filter: brightness(1.1); }
+    .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+    .marker { color: var(--primary-dark); font-weight: 700; }
+    .demo-debug { font-family: Consolas, monospace; overflow-x: auto; max-height: 300px; background: #f1f1f1; padding: 12px; }
+    .small { color: #555; font-size: .9rem; }
   </style>
 </head>
-<body>
-  <h1>2Jew List Demo UI</h1>
-  <div class="panel">
-    <h2>1. Register / Login</h2>
-    <label>Name: <input id="name" value="Test User"></label><br>
-    <label>Email: <input id="email" value="test@example.com"></label><br>
-    <label>Password: <input id="password" type="password" value="secret"></label><br>
-    <label>Tier: <select id="tier"><option>Easy</option><option>Medium</option><option>Advanced</option></select></label><br>
-    <button onclick="register()">Register</button>
-    <button onclick="login()">Login</button>
-    <button onclick="fetchProfile()">Load profile</button>
-    <button onclick="updateTier()">Update tier</button>
-    <p id="token" class="small">No token yet</p>
-    <pre id="profileOutput"></pre>
-  </div>
+<body onload="showPage('dashboard')">
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <img src="https://via.placeholder.com/38x38.png?text=2J" alt="2Jew list logo" />
+        <span>2Jew List</span>
+      </div>
+      <div class="nav-icons">
+        <div class="nav-icon" onclick="showPage('dashboard')" title="Dashboard">🏠</div>
+        <div class="nav-icon" onclick="showPage('checklist')" title="Daily Checklist">✅</div>
+        <div class="nav-icon" onclick="showPage('calendar')" title="Calendar">🗓️</div>
+        <div class="nav-icon" onclick="showPage('social')" title="Social">👥</div>
+        <div class="nav-icon" onclick="showPage('profile')" title="Profile">👤</div>
+        <div class="nav-icon" onclick="showPage('achievements')" title="Achievements">🏅</div>
+      </div>
+      <button onclick="showPage('devtools')">Dev Tools</button>
+    </header>
 
-  <div class="panel">
-    <h2>2. Daily checklist</h2>
-    <label>Date: <input id="checklistDate" type="date" value="2026-03-22"></label><br>
-    <button onclick="fetchChecklist()">Load checklist</button>
-    <button onclick="fetchProgress()">Get today progress</button>
-    <ul id="checklistTasks"></ul>
-    <pre id="checklistOutput"></pre>
-  </div>
+    <main class="content">
+      <section class="main">
+        <article id="dashboard" class="page active">
+          <h2>Dashboard</h2>
+          <div class="card-grid">
+            <div class="section">
+              <h3>Today's Progress</h3>
+              <p class="small">0/10 tasks completed</p>
+              <div style="height:100px;width:100px;border-radius:50%;border: 8px solid #d5eefa; display:flex; align-items:center; justify-content:center; font-size:1.1rem; color: var(--primary);">0%</div>
+            </div>
+            <div class="section">
+              <h3>Streak</h3>
+              <p class="marker">🔥 0 days</p>
+              <p class="small">Longest: 0</p>
+            </div>
+            <div class="section">
+              <h3>Next Tasks</h3>
+              <ul>
+                <li>Modeh Ani</li>
+                <li>Morning prayer</li>
+                <li>Learn 1 daf</li>
+              </ul>
+            </div>
+            <div class="section">
+              <h3>Motivational Quote</h3>
+              <blockquote class="small">“Whoever saves a single life, it is as if he saved an entire world.”</blockquote>
+            </div>
+          </div>
+        </article>
 
-  <div class="panel">
-    <h2>3. Streak details</h2>
-    <button onclick="fetchStreak()">Get streak</button>
-    <button onclick="fetchStreakHistory()">Get streak history</button>
-    <pre id="streakOutput"></pre>
-  </div>
+        <article id="checklist" class="page">
+          <h2>Daily Checklist</h2>
+          <div class="section">
+            <p class="small">Interactive checklist and task details go here.</p>
+            <ol>
+              <li>Modeh Ani - <button>Check</button></li>
+              <li>Tallit & Tefillin - <button>Check</button></li>
+              <li>Daily learning - <button>Check</button></li>
+            </ol>
+          </div>
+          <div class="section">
+            <h4>Streak Impact</h4>
+            <p class="small">Complete all tasks to keep your streak alive.</p>
+          </div>
+        </article>
 
-  <div class="panel">
-    <h2>4. Calendar</h2>
-    <label>Year: <input id="holidayYear" type="number" value="2026"></label>
-    <button onclick="fetchHolidays()">Holidays</button><br>
-    <label>Lat: <input id="lat" type="number" value="31.778"></label>
-    <label>Lng: <input id="lng" type="number" value="35.235"></label>
-    <label>Date: <input id="zmanimDate" type="date" value="2026-03-22"></label>
-    <button onclick="fetchZmanim()">Zmanim</button>
-    <br>
-    <label>Omer Date: <input id="omerDate" type="date" value="2026-03-22"></label>
-    <button onclick="fetchOmer()">Omer</button>
-    <pre id="calendarOutput"></pre>
-  </div>
+        <article id="calendar" class="page">
+          <h2>Calendar</h2>
+          <div class="section">
+            <p class="small">Monthly calendar placeholder with holiday/Omer markers.</p>
+            <div style="height: 260px; border: 2px dashed #a0c4db; border-radius: 10px; display:flex; align-items:center; justify-content:center; color:#616f7f;">[Month view grid]</div>
+          </div>
+          <div class="section">
+            <h4>Jewish Calendar Highlights</h4>
+            <ul>
+              <li>Pesach - 15 Nisan</li>
+              <li>Shavuot - 6 Sivan</li>
+              <li>Sukkot - 15 Tishrei</li>
+            </ul>
+          </div>
+        </article>
 
-  <div class="panel">
-    <h2>5. Friends / Leaderboard</h2>
-    <button onclick="getFriends()">Get friends</button>
-    <label>Friend ID: <input id="friendId" value=""></label><button onclick="addFriend()">Add friend</button>
-    <button onclick="friendLeaderboard()">Friends leaderboard</button>
-    <pre id="friendsOutput"></pre>
-  </div>
+        <article id="social" class="page">
+          <h2>Social</h2>
+          <div class="section">
+            <h4>Friends</h4>
+            <p class="small">Search, add, and track friends’ streaks.</p>
+            <p>Users: user1, user2, user3</p>
+          </div>
+          <div class="section">
+            <h4>Leaderboards</h4>
+            <p class="small">Top 5 by streak this week.</p>
+            <ol><li>Naftali - 48</li><li>Rachel - 34</li><li>...</li></ol>
+          </div>
+        </article>
 
-  <div class="panel">
-    <h2>6. Achievements</h2>
-    <button onclick="getAchievements()">My achievements</button>
-    <button onclick="getAvailableAchievements()">Available achievements</button>
-    <pre id="achievementsOutput"></pre>
-  </div>
+        <article id="profile" class="page">
+          <h2>Profile & Settings</h2>
+          <div class="section">
+            <p class="small">Username: Test User</p>
+            <p class="small">Tier: Easy</p>
+            <p class="small">Joined: 2025-01-01</p>
+          </div>
+          <div class="section">
+            <h4>Statistics</h4>
+            <ul>
+              <li>Tasks completed: 0</li>
+              <li>Longest streak: 0</li>
+              <li>XP: 0</li>
+            </ul>
+          </div>
+        </article>
 
-  <div class="panel">
-    <h2>7. XP & Rewards</h2>
-    <button onclick="getXP()">Get XP</button>
-    <label>Points: <input id="xpPoints" type="number" value="100"></label>
-    <button onclick="addXP()">Add XP</button>
-    <pre id="xpOutput"></pre>
-    <button onclick="getRewards()">Get rewards</button>
-    <label>Reward ID: <input id="rewardId" value=""></label><button onclick="redeemReward()">Redeem reward</button>
-    <pre id="rewardsOutput"></pre>
+        <article id="achievements" class="page">
+          <h2>Achievements</h2>
+          <div class="section">
+            <p class="small">Achievement gallery sample layout.</p>
+            <div class="card-grid">
+              <div style="padding:10px;border:1px dashed #b0cfe7;border-radius:10px;">New User</div>
+              <div style="padding:10px;border:1px dashed #b0cfe7;border-radius:10px;">First Checklist</div>
+              <div style="padding:10px;border:1px dashed #b0cfe7;border-radius:10px;">7-Day Streak</div>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <aside class="side-panel" id="devtools" style="display:none;">
+        <h3>API Developer Tools</h3>
+        <p class="small">Keep old raw controls for backend testing. Use top nav for page stubs.</p>
+        <div class="section">
+          <h4>Login / Register</h4>
+          <label>Name: <input id="name" value="Test User"></label><br>
+          <label>Email: <input id="email" value="test@example.com"></label><br>
+          <label>Password: <input id="password" type="password" value="secret"></label><br>
+          <label>Tier: <select id="tier"><option>Easy</option><option>Medium</option><option>Advanced</option></select></label><br>
+          <div class="panel-controls">
+            <button onclick="register()">Register</button>
+            <button onclick="login()">Login</button>
+            <button onclick="fetchProfile()">Profile</button>
+          </div>
+          <p id="token" class="small">No token yet</p>
+          <pre id="profileOutput" class="demo-debug"></pre>
+        </div>
+        <div class="section">
+          <h4>Last API output</h4>
+          <pre id="debugOutput" class="demo-debug">(API results appear in each panel)</pre>
+        </div>
+      </aside>
+    </main>
   </div>
 
   <script>
     let authToken = null;
     let userId = null;
 
-    function setResult(id, data){ document.getElementById(id).textContent = JSON.stringify(data, null, 2); }
+    function showPage(pageId) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      const page = document.getElementById(pageId);
+      if (page) page.classList.add('active');
+      document.getElementById('devtools').style.display = pageId === 'devtools' ? 'block' : 'none';
+    }
+
+    function setResult(id, data){
+      const content = JSON.stringify(data, null, 2);
+      document.getElementById(id).textContent = content;
+      const debug = document.getElementById('debugOutput');
+      if (debug) debug.textContent = `${id}: ${content}`;
+    }
 
     async function register(){
       const payload = {
