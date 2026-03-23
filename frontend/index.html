@@ -55,7 +55,7 @@
   <div class="app-shell">
     <header class="topbar">
       <div class="brand">
-        <img src="https://via.placeholder.com/38x38.png?text=2J" alt="2Jew list logo" />
+        <div style="font-size: 1.8rem;">✡️</div>
         <span>2Jew List</span>
       </div>
       <div class="nav-icons">
@@ -273,8 +273,7 @@
         if (authToken && userId) {
           refreshDashboard();
         } else {
-          const tokenEl = document.getElementById('token');
-          if (tokenEl) tokenEl.textContent = 'Please log in to load dashboard.';
+          loadDashboardDemo();
         }
       }
       if (pageId === 'checklist' && requireAuth()) loadChecklist();
@@ -600,7 +599,15 @@
       const list = document.getElementById('rewardsOutput');
       return json;
     }
-
+    function loadDashboardDemo() {
+      // Load demo data for unauthenticated users
+      document.getElementById('dashboardProgressText').textContent = '7/10 tasks completed';
+      document.getElementById('dashboardProgressCircle').textContent = '70%';
+      document.getElementById('dashboardStreak').textContent = '🔥 5 days';
+      document.getElementById('dashboardLongest').textContent = 'Longest: 23 days';
+      const list = document.getElementById('dashboardNextTasks');
+      list.innerHTML = '<li>Morning prayers</li><li>Gratitude journal</li><li>Study Torah</li>';
+    }
     async function redeemReward() {
       if (!requireAuth()) return;
       const rewardId = document.getElementById('rewardId').value;
