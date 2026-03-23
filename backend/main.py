@@ -239,6 +239,30 @@ def find_or_create_checklist(user: models.User, target_date: date, db: Session):
     return created
 
 
+@app.get("/users/{user_id}/checklist/progress")
+def get_checklist_progress(user_id: str, current_user: models.User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if current_user.id != user_id:
+        raise HTTPException(status_code=403, detail="Not allowed")
+    
+    today = date.today()
+    items = db.query(models.ChecklistItem).filter(models.ChecklistItem.user_id == user_id, models.ChecklistItem.date == today).all()
+    if not items:
+        items = find_or_create_checklist(current_user, today, db)
+    
+    total = len(items)
+    completed_count = 0
+    for item in items:
+        if item.completed:
+            completed_count += 1
+    
+    if total > 0:
+        percentage = (completed_count / total) * 100
+    else:
+        percentage = 0.0
+    
+    return {"completed_tasks": completed_count, "total_tasks": total, "percentage": percentage}
+
+
 @app.get("/users/{user_id}/checklist/{date}", response_model=schemas.ChecklistResponse)
 def get_checklist(user_id: str, date: str, current_user: models.User = Depends(get_current_user), db: Session = Depends(get_db)):
     if current_user.id != user_id:
@@ -292,13 +316,37 @@ def update_streak(user: models.User, target_date: date, db: Session):
 def get_checklist_progress(user_id: str, current_user: models.User = Depends(get_current_user), db: Session = Depends(get_db)):
     if current_user.id != user_id:
         raise HTTPException(status_code=403, detail="Not allowed")
+    
     today = date.today()
+    print(f"DEBUG: Getting progress for user {user_id} on {today}")
     items = db.query(models.ChecklistItem).filter(models.ChecklistItem.user_id == user_id, models.ChecklistItem.date == today).all()
+    print(f"DEBUG: Found {len(items)} items")
+    
     if not items:
+        print(f"DEBUG: No items found, creating checklist")
         items = find_or_create_checklist(current_user, today, db)
+        print(f"DEBUG: Created {len(items)} items")
+    
     total = len(items)
-    completed = sum(i.completed for i in items)
-    return {"completed_tasks": completed, "total_tasks": total, "percentage": (completed / total * 100) if total else 0}
+    print(f"DEBUG: Total items: {total}")
+    
+    completed_count = 0
+    for item in items:
+        if item.completed:
+            completed_count += 1
+    
+    print(f"DEBUG: Completed items: {completed_count}")
+    
+    if total > 0:
+        percentage = (completed_count / total) * 100
+    else:
+        percentage = 0.0
+    
+    print(f"DEBUG: Percentage: {percentage}")
+    
+    result = {"completed_tasks": completed_count, "total_tasks": total, "percentage": percentage}
+    print(f"DEBUG: Returning: {result}")
+    return result
 
 
 @app.get("/users/{user_id}/streak", response_model=schemas.StreakResponse)

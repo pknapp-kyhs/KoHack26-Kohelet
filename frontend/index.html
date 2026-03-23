@@ -346,16 +346,27 @@
     }
 
     async function fetchProfile() {
-      if (!authToken) return;
-      const res = await fetch('/users/me', { headers: { Authorization: 'Bearer ' + authToken } });
-      if (res.status === 401) return handleUnauthenticated();
-      const profile = await res.json();
-      if (res.ok) {
-        userId = profile.id;
-        updateProfileUI(profile);
+      if (!authToken) {
+        console.warn('fetchProfile: no auth token');
+        return;
       }
-      setResult('profileOutput', profile);
-      return profile;
+      try {
+        const res = await fetch('/users/me', { headers: { Authorization: 'Bearer ' + authToken } });
+        if (res.status === 401) return handleUnauthenticated();
+        if (!res.ok) {
+          console.error('fetchProfile error:', res.status);
+          return;
+        }
+        const profile = await res.json();
+        if (res.ok) {
+          userId = profile.id;
+          updateProfileUI(profile);
+        }
+        setResult('profileOutput', profile);
+        return profile;
+      } catch (err) {
+        console.error('fetchProfile error:', err);
+      }
     }
 
     async function updateTier() {
@@ -372,23 +383,32 @@
 
     async function loadChecklist() {
       if (!requireAuth()) return;
-      const d = document.getElementById('checklistDate').value;
-      const res = await fetch(`/users/${userId}/checklist/${d}`, { headers: { Authorization: 'Bearer ' + authToken } });
-      const json = await res.json();
-      setResult('checklistOutput', json);
-      const list = document.getElementById('checklistTasks');
-      list.innerHTML = '';
-      if (res.ok && Array.isArray(json.tasks)) {
-        json.tasks.forEach(t => {
-          const li = document.createElement('li');
-          li.innerHTML = `<label><input type="checkbox" ${t.completed ? 'checked':''} onchange="toggleChecklistItem('${d}', '${t.task_id}', this.checked)" /> ${t.task_name}</label> <span class="small">${t.completed_at || ''}</span>`;
-          list.appendChild(li);
-        });
-        document.getElementById('checklistStatus').textContent = `${json.tasks.filter(t => t.completed).length}/${json.tasks.length} tasks completed`;
-      } else {
-        document.getElementById('checklistStatus').textContent = 'Unable to load checklist';
+      try {
+        const d = document.getElementById('checklistDate').value;
+        const res = await fetch(`/users/${userId}/checklist/${d}`, { headers: { Authorization: 'Bearer ' + authToken } });
+        if (!res.ok) {
+          console.error('loadChecklist error:', res.status);
+          return;
+        }
+        const json = await res.json();
+        setResult('checklistOutput', json);
+        const list = document.getElementById('checklistTasks');
+        list.innerHTML = '';
+        if (res.ok && Array.isArray(json.tasks)) {
+          json.tasks.forEach(t => {
+            const li = document.createElement('li');
+            li.innerHTML = `<label><input type="checkbox" ${t.completed ? 'checked':''} onchange="toggleChecklistItem('${d}', '${t.task_id}', this.checked)" /> ${t.task_name}</label> <span class="small">${t.completed_at || ''}</span>`;
+            list.appendChild(li);
+          });
+          document.getElementById('checklistStatus').textContent = `${json.tasks.filter(t => t.completed).length}/${json.tasks.length} tasks completed`;
+        } else {
+          document.getElementById('checklistStatus').textContent = 'Unable to load checklist';
+        }
+        return json;
+      } catch (err) {
+        console.error('loadChecklist error:', err);
+        document.getElementById('checklistStatus').textContent = `Error: ${err.message}`;
       }
-      return json;
     }
 
     async function toggleChecklistItem(date, taskId, state) {
@@ -405,26 +425,46 @@
     }
 
     async function fetchProgress() {
-      if (!requireAuth()) return;
-      const res = await fetch(`/users/${userId}/checklist/progress`, { headers: { Authorization: 'Bearer ' + authToken } });
-      const json = await res.json();
-      setResult('checklistOutput', json);
-      const percent = Math.round(json.percentage || 0);
-      const total = json.total_tasks || 0;
-      const completed = json.completed_tasks || 0;
-      document.getElementById('dashboardProgressText').textContent = `${completed}/${total} tasks completed`;
-      document.getElementById('dashboardProgressCircle').textContent = `${percent}%`;
-      return json;
+      if (!requireAuth()) {
+        document.getElementById('dashboardProgressText').textContent = 'Please log in';
+        return;
+      }
+      try {
+        const res = await fetch(`/users/${userId}/checklist/progress`, { headers: { Authorization: 'Bearer ' + authToken } });
+        if (!res.ok) {
+          document.getElementById('dashboardProgressText').textContent = `Error: ${res.status}`;
+          return;
+        }
+        const json = await res.json();
+        setResult('checklistOutput', json);
+        const percent = Math.round(json.percentage || 0);
+        const total = json.total_tasks || 0;
+        const completed = json.completed_tasks || 0;
+        document.getElementById('dashboardProgressText').textContent = `${completed}/${total} tasks completed`;
+        document.getElementById('dashboardProgressCircle').textContent = `${percent}%`;
+        return json;
+      } catch (err) {
+        console.error('fetchProgress error:', err);
+        document.getElementById('dashboardProgressText').textContent = `Error: ${err.message}`;
+      }
     }
 
     async function fetchStreak() {
       if (!requireAuth()) return;
-      const res = await fetch(`/users/${userId}/streak`, { headers: { Authorization: 'Bearer ' + authToken } });
-      const json = await res.json();
-      setResult('streakOutput', json);
-      document.getElementById('dashboardStreak').textContent = `🔥 ${json.current_streak || 0} days`;
-      document.getElementById('dashboardLongest').textContent = `Longest: ${json.longest_streak || 0}`;
-      return json;
+      try {
+        const res = await fetch(`/users/${userId}/streak`, { headers: { Authorization: 'Bearer ' + authToken } });
+        if (!res.ok) {
+          console.error('fetchStreak error:', res.status);
+          return;
+        }
+        const json = await res.json();
+        setResult('streakOutput', json);
+        document.getElementById('dashboardStreak').textContent = `🔥 ${json.current_streak || 0} days`;
+        document.getElementById('dashboardLongest').textContent = `Longest: ${json.longest_streak || 0}`;
+        return json;
+      } catch (err) {
+        console.error('fetchStreak error:', err);
+      }
     }
 
     async function fetchStreakHistory() {
@@ -472,25 +512,37 @@
     }
 
     async function loadDashboardTasks() {
-      if (!requireAuth()) return;
-      const today = new Date().toISOString().split('T')[0];
-      const res = await fetch(`/users/${userId}/checklist/${today}`, { headers: { Authorization: 'Bearer ' + authToken } });
-      const json = await res.json();
-      const list = document.getElementById('dashboardNextTasks');
-      if (res.ok && Array.isArray(json.tasks)) {
-        const completed = json.tasks.filter(t => t.completed).length;
-        const total = json.tasks.length;
-        const pending = json.tasks.filter(t => !t.completed);
-        if (list) {
-          list.innerHTML = pending.length > 0 ? pending.map(t => `<li>${t.task_name}</li>`).join('') : '<li>All tasks completed for today!</li>';
-        }
-        document.getElementById('dashboardProgressText').textContent = `${completed}/${total} tasks completed`;
-        document.getElementById('dashboardProgressCircle').textContent = `${total ? Math.round((completed/total)*100) : 0}%`;
-      } else {
-        if (list) list.innerHTML = '<li>Unable to load tasks</li>';
-        document.getElementById('dashboardProgressText').textContent = 'Unable to load progress';
+      if (!requireAuth()) {
+        document.getElementById('dashboardNextTasks').innerHTML = '<li>Please log in</li>';
+        return;
       }
-      return json;
+      try {
+        const today = new Date().toISOString().split('T')[0];
+        const res = await fetch(`/users/${userId}/checklist/${today}`, { headers: { Authorization: 'Bearer ' + authToken } });
+        if (!res.ok) {
+          document.getElementById('dashboardNextTasks').innerHTML = `<li>Error: ${res.status}</li>`;
+          return;
+        }
+        const json = await res.json();
+        const list = document.getElementById('dashboardNextTasks');
+        if (res.ok && Array.isArray(json.tasks)) {
+          const completed = json.tasks.filter(t => t.completed).length;
+          const total = json.tasks.length;
+          const pending = json.tasks.filter(t => !t.completed);
+          if (list) {
+            list.innerHTML = pending.length > 0 ? pending.map(t => `<li>${t.task_name}</li>`).join('') : '<li>All tasks completed for today!</li>';
+          }
+          document.getElementById('dashboardProgressText').textContent = `${completed}/${total} tasks completed`;
+          document.getElementById('dashboardProgressCircle').textContent = `${total ? Math.round((completed/total)*100) : 0}%`;
+        } else {
+          if (list) list.innerHTML = '<li>Unable to load tasks</li>';
+          document.getElementById('dashboardProgressText').textContent = 'Unable to load progress';
+        }
+        return json;
+      } catch (err) {
+        console.error('loadDashboardTasks error:', err);
+        document.getElementById('dashboardNextTasks').innerHTML = `<li>Error: ${err.message}</li>`;
+      }
     }
 
     async function getFriends() {
@@ -612,14 +664,24 @@
     }
 
     async function refreshDashboard() {
+      console.log('refreshDashboard called, authToken:', !!authToken, 'userId:', userId);
       await fetchProfile();
-      if (requireAuth()) {
-        await fetchProgress();
-        await fetchStreak();
-        await loadDashboardTasks();
-        await loadChecklist();
-        await loadAchievements();
-        await loadAvailableAchievements();
+      console.log('fetchProfile done, userId now:', userId);
+      if (authToken && userId) {
+        console.log('Fetching dashboard data...');
+        await Promise.all([
+          fetchProgress(),
+          fetchStreak(),
+          loadDashboardTasks(),
+          loadChecklist(),
+          loadAchievements(),
+          loadAvailableAchievements()
+        ]);
+        console.log('Dashboard data loaded');
+      } else {
+        console.warn('refreshDashboard: auth not ready, authToken:', !!authToken, 'userId:', userId);
+        document.getElementById('dashboardProgressText').textContent = 'Not logged in';
+        document.getElementById('dashboardNextTasks').innerHTML = '<li>Please log in</li>';
       }
     }
 
