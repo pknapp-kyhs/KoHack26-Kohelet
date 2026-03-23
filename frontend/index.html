@@ -51,7 +51,7 @@
     .small { color: #555; font-size: .9rem; }
   </style>
 </head>
-<body onload="showPage('dashboard')">
+<body onload="initApp()">
   <div class="app-shell">
     <header class="topbar">
       <div class="brand">
@@ -256,6 +256,13 @@
       return false;
     }
 
+    function initApp() {
+      const today = new Date().toISOString().split('T')[0];
+      const dateInput = document.getElementById('checklistDate');
+      if (dateInput) dateInput.value = today;
+      showPage('dashboard');
+    }
+
     function showPage(pageId) {
       document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
       const page = document.getElementById(pageId);
@@ -392,6 +399,8 @@
       setResult('checklistOutput', r);
       await fetchProgress();
       await fetchStreak();
+      await loadDashboardTasks();
+      await loadChecklist();
       return r;
     }
 
@@ -458,6 +467,28 @@
         document.getElementById('omerInfo').textContent = `Day ${json.day}, week ${json.week} / ${json.total_days}: ${json.bracha}`;
       } else {
         document.getElementById('omerInfo').textContent = `Error: ${json.detail || 'Invalid date'}`;
+      }
+      return json;
+    }
+
+    async function loadDashboardTasks() {
+      if (!requireAuth()) return;
+      const today = new Date().toISOString().split('T')[0];
+      const res = await fetch(`/users/${userId}/checklist/${today}`, { headers: { Authorization: 'Bearer ' + authToken } });
+      const json = await res.json();
+      const list = document.getElementById('dashboardNextTasks');
+      if (res.ok && Array.isArray(json.tasks)) {
+        const completed = json.tasks.filter(t => t.completed).length;
+        const total = json.tasks.length;
+        const pending = json.tasks.filter(t => !t.completed);
+        if (list) {
+          list.innerHTML = pending.length > 0 ? pending.map(t => `<li>${t.task_id}</li>`).join('') : '<li>All tasks completed for today!</li>';
+        }
+        document.getElementById('dashboardProgressText').textContent = `${completed}/${total} tasks completed`;
+        document.getElementById('dashboardProgressCircle').textContent = `${total ? Math.round((completed/total)*100) : 0}%`;
+      } else {
+        if (list) list.innerHTML = '<li>Unable to load tasks</li>';
+        document.getElementById('dashboardProgressText').textContent = 'Unable to load progress';
       }
       return json;
     }
@@ -582,11 +613,14 @@
 
     async function refreshDashboard() {
       await fetchProfile();
-      await fetchProgress();
-      await fetchStreak();
-      await loadChecklist();
-      await loadAchievements();
-      await loadAvailableAchievements();
+      if (requireAuth()) {
+        await fetchProgress();
+        await fetchStreak();
+        await loadDashboardTasks();
+        await loadChecklist();
+        await loadAchievements();
+        await loadAvailableAchievements();
+      }
     }
 
   </script>
