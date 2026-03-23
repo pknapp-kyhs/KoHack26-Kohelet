@@ -91,6 +91,7 @@ class ChecklistItemCreate(BaseModel):
 
 class ChecklistItemResponse(BaseModel):
     task_id: str
+    task_name: str
     completed: bool
     completed_at: Optional[datetime]
 

@@ -273,7 +273,8 @@
         if (authToken && userId) {
           refreshDashboard();
         } else {
-          loadDashboardDemo();
+          const tokenEl = document.getElementById('token');
+          if (tokenEl) tokenEl.textContent = 'Please log in to load dashboard.';
         }
       }
       if (pageId === 'checklist' && requireAuth()) loadChecklist();
@@ -380,7 +381,7 @@
       if (res.ok && Array.isArray(json.tasks)) {
         json.tasks.forEach(t => {
           const li = document.createElement('li');
-          li.innerHTML = `<label><input type="checkbox" ${t.completed ? 'checked':''} onchange="toggleChecklistItem('${d}', '${t.task_id}', this.checked)" /> ${t.task_id}</label> <span class="small">${t.completed_at || ''}</span>`;
+          li.innerHTML = `<label><input type="checkbox" ${t.completed ? 'checked':''} onchange="toggleChecklistItem('${d}', '${t.task_id}', this.checked)" /> ${t.task_name}</label> <span class="small">${t.completed_at || ''}</span>`;
           list.appendChild(li);
         });
         document.getElementById('checklistStatus').textContent = `${json.tasks.filter(t => t.completed).length}/${json.tasks.length} tasks completed`;
@@ -481,7 +482,7 @@
         const total = json.tasks.length;
         const pending = json.tasks.filter(t => !t.completed);
         if (list) {
-          list.innerHTML = pending.length > 0 ? pending.map(t => `<li>${t.task_id}</li>`).join('') : '<li>All tasks completed for today!</li>';
+          list.innerHTML = pending.length > 0 ? pending.map(t => `<li>${t.task_name}</li>`).join('') : '<li>All tasks completed for today!</li>';
         }
         document.getElementById('dashboardProgressText').textContent = `${completed}/${total} tasks completed`;
         document.getElementById('dashboardProgressCircle').textContent = `${total ? Math.round((completed/total)*100) : 0}%`;
@@ -599,15 +600,7 @@
       const list = document.getElementById('rewardsOutput');
       return json;
     }
-    function loadDashboardDemo() {
-      // Load demo data for unauthenticated users
-      document.getElementById('dashboardProgressText').textContent = '7/10 tasks completed';
-      document.getElementById('dashboardProgressCircle').textContent = '70%';
-      document.getElementById('dashboardStreak').textContent = '🔥 5 days';
-      document.getElementById('dashboardLongest').textContent = 'Longest: 23 days';
-      const list = document.getElementById('dashboardNextTasks');
-      list.innerHTML = '<li>Morning prayers</li><li>Gratitude journal</li><li>Study Torah</li>';
-    }
+
     async function redeemReward() {
       if (!requireAuth()) return;
       const rewardId = document.getElementById('rewardId').value;

@@ -248,7 +248,11 @@ def get_checklist(user_id: str, date: str, current_user: models.User = Depends(g
     total = len(items)
     completed = sum(1 for i in items if i.completed)
     percent = (completed / total * 100) if total else 0
-    response_items = [schemas.ChecklistItemResponse(task_id=i.task_id, completed=i.completed, completed_at=i.completed_at) for i in items]
+    response_items = []
+    for i in items:
+        task = db.query(models.Task).filter(models.Task.id == i.task_id).first()
+        task_name = task.name if task else i.task_id
+        response_items.append(schemas.ChecklistItemResponse(task_id=i.task_id, task_name=task_name, completed=i.completed, completed_at=i.completed_at))
     return schemas.ChecklistResponse(date=target_date, user_id=user_id, tasks=response_items, progress_percentage=percent)
 
 
