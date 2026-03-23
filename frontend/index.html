@@ -711,7 +711,7 @@
       const json = await res.json();
       setResult('calendarOutput', json);
       if (res.ok) {
-        document.getElementById('omerInfo').textContent = `Day ${json.day}, week ${json.week} / ${json.total_days}: ${json.bracha}`;
+        document.getElementById('omerInfo').textContent = `Day ${json.day}, week ${json.week} / 7: ${json.bracha}`;
       } else {
         document.getElementById('omerInfo').textContent = `Error: ${json.detail || 'Invalid date'}`;
       }
