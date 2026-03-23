@@ -133,6 +133,50 @@
     .marker { color: var(--primary-dark); font-weight: 700; }
     .demo-debug { font-family: Consolas, monospace; overflow-x: auto; max-height: 300px; background: #f1f1f1; padding: 12px; }
     .small { color: var(--text-muted); font-size: .9rem; }
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 2px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .calendar-header {
+      background: var(--primary);
+      color: white;
+      padding: 12px;
+      text-align: center;
+      font-weight: 600;
+    }
+    .calendar-day {
+      background: var(--panel);
+      min-height: 80px;
+      padding: 8px;
+      position: relative;
+    }
+    .calendar-day.empty {
+      background: var(--bg);
+    }
+    .calendar-day-number {
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: var(--text);
+    }
+    .calendar-event {
+      font-size: 0.8rem;
+      padding: 2px 4px;
+      margin: 1px 0;
+      border-radius: 3px;
+      background: var(--accent);
+      color: white;
+    }
+    .calendar-event.jewish-holiday {
+      background: var(--primary);
+    }
+    .calendar-event.us-holiday {
+      background: var(--accent-dark);
+    }
   </style>
 </head>
 <body onload="initApp()">
@@ -206,16 +250,14 @@
         <article id="calendar" class="page">
           <h2>Calendar</h2>
           <div class="section" style="margin-bottom:10px;">
-            <label>Fiscal (Hebrew) Year: <input id="holidayYear" type="number" value="2026"></label>
-            <button onclick="loadHolidays()">Load Holidays</button>
+            <label>Month: <input id="calendarMonth" type="month" value="2026-03"></label>
+            <button onclick="loadCalendar()">Load Calendar</button>
           </div>
-          <div class="section" id="holidayList" style="margin-bottom:10px;">
-            <h4>Jewish Calendar Highlights</h4>
-            <ul><li>No holiday data yet</li></ul>
+          <div class="section" id="calendarGrid" style="margin-bottom:10px;">
+            <!-- Calendar grid will be loaded here -->
           </div>
           <div class="section" style="margin-bottom:10px;">
-            <label>Lat: <input id="lat" type="number" value="31.778"></label>
-            <label>Lng: <input id="lng" type="number" value="35.235"></label>
+            <label>Zip Code: <input id="zipCode" type="text" value="10001" placeholder="Enter zip code"></label>
             <label>Date: <input id="zmanimDate" type="date" value="2026-03-22"></label>
             <button onclick="loadZmanim()">Load Zmanim</button>
           </div>
@@ -399,7 +441,7 @@
         }
       }
       if (pageId === 'checklist' && requireAuth()) loadChecklist();
-      if (pageId === 'calendar') loadHolidays();
+      if (pageId === 'calendar') loadCalendar();
       if (pageId === 'social' && requireAuth()) { getFriends(); friendLeaderboard(); }
       if (pageId === 'profile' && requireAuth()) fetchProfile();
       if (pageId === 'achievements') {
@@ -611,11 +653,52 @@
       return json;
     }
 
+    async function loadCalendar() {
+      const monthInput = document.getElementById('calendarMonth').value;
+      const [year, month] = monthInput.split('-').map(Number);
+      const res = await fetch(`/calendar/events/${year}/${month}`);
+      const json = await res.json();
+      setResult('calendarOutput', json);
+
+      const grid = document.getElementById('calendarGrid');
+      if (res.ok && json.calendar) {
+        const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        let html = `<div class="calendar-grid">`;
+
+        // Header
+        daysOfWeek.forEach(day => {
+          html += `<div class="calendar-header">${day}</div>`;
+        });
+
+        // Calendar days
+        json.calendar.forEach(week => {
+          week.forEach(day => {
+            if (day.day === 0) {
+              html += `<div class="calendar-day empty"></div>`;
+            } else {
+              html += `<div class="calendar-day">`;
+              html += `<div class="calendar-day-number">${day.day}</div>`;
+              day.events.forEach(event => {
+                const eventClass = event.type.replace('_', '-');
+                html += `<div class="calendar-event ${eventClass}">${event.name}</div>`;
+              });
+              html += `</div>`;
+            }
+          });
+        });
+
+        html += `</div>`;
+        grid.innerHTML = html;
+      } else {
+        grid.innerHTML = '<p>Error loading calendar</p>';
+      }
+      return json;
+    }
+
     async function loadZmanim() {
-      const lat = document.getElementById('lat').value || 31.778;
-      const lng = document.getElementById('lng').value || 35.235;
+      const zipCode = document.getElementById('zipCode').value || '10001';
       const date = document.getElementById('zmanimDate').value || new Date().toISOString().split('T')[0];
-      const res = await fetch(`/calendar/zmanim?lat=${lat}&lng=${lng}&date=${date}`);
+      const res = await fetch(`/calendar/zmanim?zip_code=${zipCode}&date=${date}`);
       const json = await res.json();
       setResult('calendarOutput', json);
       document.getElementById('zmanimInfo').textContent = `Shacharis: ${json.shacharis}, Mincha: ${json.mincha}, Maariv: ${json.maariv}, Candle lighting: ${json.candle_lighting}`;

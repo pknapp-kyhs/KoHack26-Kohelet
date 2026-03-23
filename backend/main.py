@@ -1,6 +1,6 @@
 from datetime import date, datetime, timedelta
 from typing import Any, Dict, List
-from fastapi import FastAPI, HTTPException, Depends, Header, status
+from fastapi import FastAPI, HTTPException, Depends, Header, status, Query
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
@@ -9,6 +9,11 @@ from .database import engine, get_db
 from .auth import create_access_token, verify_password, get_password_hash, decode_access_token
 import json
 import os
+import calendar
+import holidays
+import requests
+from geopy.geocoders import Nominatim
+from geopy.exc import GeocoderTimedOut, GeocoderServiceError
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -393,9 +398,37 @@ def get_holidays(year: int):
 
 
 @app.get("/calendar/zmanim", response_model=schemas.ZmanimResponse)
-def get_zmanim(lat: float, lng: float, date: str):
-    _ = datetime.fromisoformat(date).date()
-    return schemas.ZmanimResponse(shacharis="06:00", mincha="13:30", maariv="19:40", candle_lighting="18:00")
+def get_zmanim(
+    zip_code: str = Query(None),
+    lat: float = Query(None),
+    lng: float = Query(None),
+    date: str = Query(None)
+):
+    """Get prayer times. Can use zip_code or lat/lng."""
+    if zip_code:
+        lat, lng = geocode_zip(zip_code)
+    elif lat is None or lng is None:
+        raise HTTPException(status_code=400, detail="Either zip_code or lat/lng required")
+
+    if not date:
+        date = datetime.now().date().isoformat()
+
+    target_date = datetime.fromisoformat(date).date()
+
+    # For now, return mock times. In a real app, you'd use a proper zmanim library
+    # For Jerusalem coordinates as fallback
+    if not lat or not lng:
+        lat, lng = 31.778, 35.235
+
+    # Simple mock calculation - in reality use proper astronomical calculations
+    base_times = {
+        "shacharis": "06:00",
+        "mincha": "13:30",
+        "maariv": "19:40",
+        "candle_lighting": "18:00"
+    }
+
+    return schemas.ZmanimResponse(**base_times)
 
 
 @app.get("/calendar/omer/{date}", response_model=schemas.OmerResponse)
@@ -410,6 +443,97 @@ def get_omer(date: str):
     week = ((omer_day - 1) // 7) + 1
     bracha = "Baruch ata..." if 1 <= omer_day <= 49 else ""
     return schemas.OmerResponse(day=omer_day, week=week, total_days=49, bracha=bracha)
+
+
+def geocode_zip(zip_code: str) -> tuple[float, float]:
+    """Convert zip code to latitude and longitude."""
+    try:
+        geolocator = Nominatim(user_agent="2jew-list-app")
+        location = geolocator.geocode(f"{zip_code}, USA")
+        if location:
+            return location.latitude, location.longitude
+        else:
+            raise HTTPException(status_code=400, detail="Invalid zip code")
+    except (GeocoderTimedOut, GeocoderServiceError) as e:
+        raise HTTPException(status_code=500, detail=f"Geocoding service error: {str(e)}")
+
+
+@app.get("/calendar/events/{year}/{month}")
+def get_calendar_events(year: int, month: int):
+    """Get calendar events for a specific month."""
+    # Get Jewish holidays
+    us_holidays = holidays.US(years=year)
+    israel_holidays = holidays.Israel(years=year)
+
+    # Combine holidays
+    all_holidays = {}
+    for holiday_date, name in us_holidays.items():
+        if holiday_date.month == month:
+            all_holidays[holiday_date] = {"name": name, "type": "us_holiday"}
+
+    for holiday_date, name in israel_holidays.items():
+        if holiday_date.month == month:
+            if holiday_date in all_holidays:
+                all_holidays[holiday_date]["name"] += f" / {name}"
+            else:
+                all_holidays[holiday_date] = {"name": name, "type": "jewish_holiday"}
+
+    # Create calendar structure
+    cal = calendar.monthcalendar(year, month)
+    calendar_data = []
+
+    for week in cal:
+        week_data = []
+        for day in week:
+            if day == 0:
+                week_data.append({"day": 0, "events": []})
+            else:
+                day_date = date(year, month, day)
+                events = []
+                if day_date in all_holidays:
+                    events.append({
+                        "type": all_holidays[day_date]["type"],
+                        "name": all_holidays[day_date]["name"],
+                        "description": f"{all_holidays[day_date]['type'].replace('_', ' ').title()}"
+                    })
+                week_data.append({"day": day, "events": events})
+        calendar_data.append(week_data)
+
+    return {
+        "year": year,
+        "month": month,
+        "month_name": calendar.month_name[month],
+        "calendar": calendar_data
+    }
+
+
+@app.get("/calendar/zmanim", response_model=schemas.ZmanimResponse)
+def get_zmanim(zip_code: str = None, lat: float = None, lng: float = None, date: str = None):
+    """Get prayer times. Can use zip_code or lat/lng."""
+    if zip_code:
+        lat, lng = geocode_zip(zip_code)
+    elif lat is None or lng is None:
+        raise HTTPException(status_code=400, detail="Either zip_code or lat/lng required")
+
+    if not date:
+        date = datetime.now().date().isoformat()
+
+    target_date = datetime.fromisoformat(date).date()
+
+    # For now, return mock times. In a real app, you'd use a zmanim library
+    # For Jerusalem coordinates as fallback
+    if not lat or not lng:
+        lat, lng = 31.778, 35.235
+
+    # Simple mock calculation - in reality use proper astronomical calculations
+    base_times = {
+        "shacharis": "06:00",
+        "mincha": "13:30",
+        "maariv": "19:40",
+        "candle_lighting": "18:00"
+    }
+
+    return schemas.ZmanimResponse(**base_times)
 
 
 @app.get("/users/{user_id}/friends", response_model=List[schemas.FriendResponse])

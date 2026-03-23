@@ -171,6 +171,24 @@ class CalendarHoliday(BaseModel):
     description: Optional[str]
 
 
+class CalendarEvent(BaseModel):
+    type: str
+    name: str
+    description: Optional[str]
+
+
+class CalendarDay(BaseModel):
+    day: int
+    events: List[CalendarEvent]
+
+
+class CalendarMonthResponse(BaseModel):
+    year: int
+    month: int
+    month_name: str
+    calendar: List[List[CalendarDay]]
+
+
 class ZmanimResponse(BaseModel):
     shacharis: str
     mincha: str
