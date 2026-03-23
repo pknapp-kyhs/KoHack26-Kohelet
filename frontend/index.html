@@ -6,49 +6,133 @@
   <title>2Jew List Demo</title>
   <style>
     :root {
-      --primary: #00a7d5;
-      --primary-dark: #0084b0;
-      --accent: #f5b800;
-      --bg: #e7f6ff;
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --primary-light: #dbeafe;
+      --accent: #f59e0b;
+      --accent-dark: #d97706;
+      --bg: #f8fafc;
       --panel: #ffffff;
-      --text: #1f2937;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
     }
     * { box-sizing: border-box; }
     body {
-      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
       margin: 0;
-      background: linear-gradient(180deg, #bef0ff 0%, #f6fbff 100%);
+      background: linear-gradient(135deg, var(--bg) 0%, #f1f5f9 100%);
       color: var(--text);
+      line-height: 1.6;
     }
     .app-shell { min-height: 100vh; display: flex; flex-direction: column; }
     .topbar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: var(--primary);
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
       color: #fff;
-      padding: 12px 20px;
-      box-shadow: 0 3px 8px rgba(0,0,0,.15);
+      padding: 16px 24px;
+      box-shadow: var(--shadow-lg);
+      backdrop-filter: blur(10px);
     }
-    .brand { display: flex; align-items: center; gap: 10px; font-size: 1.4rem; font-weight: 700; }
-    .brand img { width: 38px; height: 38px; }
-    .nav-icons { display: flex; gap: 10px; }
-    .nav-icon { border: 1px solid rgba(255,255,255,.45); border-radius: 50%; width: 42px; height: 42px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s all; }
-    .nav-icon:hover { background: rgba(255,255,255,.2); transform: translateY(-1px); }
-    .content { display: flex; gap: 20px; padding: 16px; flex: 1; }
+    .brand { 
+      display: flex; 
+      align-items: center; 
+      gap: 12px; 
+      font-size: 1.5rem; 
+      font-weight: 700; 
+      text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
+    .brand img { 
+      width: 40px; 
+      height: 40px; 
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+    }
+    .nav-icons { display: flex; gap: 8px; }
+    .nav-icon { 
+      border: 1px solid rgba(255,255,255,.3); 
+      border-radius: 12px; 
+      width: 44px; 
+      height: 44px; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      cursor: pointer; 
+      transition: all 0.2s ease;
+      backdrop-filter: blur(10px);
+      font-size: 1.2rem;
+    }
+    .nav-icon:hover { 
+      background: rgba(255,255,255,.2); 
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    .content { 
+      display: flex; 
+      gap: 24px; 
+      padding: 24px; 
+      flex: 1; 
+      max-width: 1400px;
+      margin: 0 auto;
+    }
     .main { flex: 1; }
-    .side-panel { width: 320px; background: var(--panel); border-radius: 14px; box-shadow: 0 2px 12px rgba(0,0,0,.08); padding: 14px; }
+    .side-panel { 
+      width: 340px; 
+      background: var(--panel); 
+      border-radius: 16px; 
+      box-shadow: var(--shadow-lg);
+      padding: 20px;
+      border: 1px solid var(--border);
+    }
     .page { display: none; }
     .page.active { display: block; }
-    .section { background: var(--panel); border-radius: 12px; padding: 16px; margin-bottom: 16px; box-shadow: 0 1px 8px rgba(0,0,0,.08); }
-    h1,h2,h3,h4 { margin: 0 0 10px; }
+    .section { 
+      background: var(--panel); 
+      border-radius: 12px; 
+      padding: 20px; 
+      margin-bottom: 20px; 
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .section:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-lg);
+    }
+    h1,h2,h3,h4 { 
+      margin: 0 0 12px; 
+      font-weight: 600;
+      color: var(--text);
+    }
+    h2 { 
+      font-size: 1.75rem;
+      margin-bottom: 20px;
+      color: var(--primary);
+    }
     .panel-controls { display: flex; gap: 8px; flex-wrap: wrap; }
-    .panel-controls button, .topbar button { background: var(--accent); border: none; color: #fff; border-radius: 8px; padding: 8px 12px; cursor: pointer; }
-    .panel-controls button:hover, .topbar button:hover { filter: brightness(1.1); }
-    .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+    .panel-controls button, .topbar button { 
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+      border: none; 
+      color: #fff; 
+      border-radius: 8px; 
+      padding: 10px 16px; 
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .panel-controls button:hover, .topbar button:hover { 
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+      filter: brightness(1.05);
+    }
+    .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
     .marker { color: var(--primary-dark); font-weight: 700; }
     .demo-debug { font-family: Consolas, monospace; overflow-x: auto; max-height: 300px; background: #f1f1f1; padding: 12px; }
-    .small { color: #555; font-size: .9rem; }
+    .small { color: var(--text-muted); font-size: .9rem; }
   </style>
 </head>
 <body onload="initApp()">
@@ -65,6 +149,7 @@
         <div class="nav-icon" onclick="showPage('social')" title="Social">👥</div>
         <div class="nav-icon" onclick="showPage('profile')" title="Profile">👤</div>
         <div class="nav-icon" onclick="showPage('achievements')" title="Achievements">🏅</div>
+        <div class="nav-icon" onclick="showPage('rewards')" title="Rewards">🎁</div>
       </div>
       <button onclick="showPage('devtools')">Dev Tools</button>
     </header>
@@ -202,6 +287,42 @@
           </div>
           <pre id="achievementsOutput" class="demo-debug"></pre>
         </article>
+
+        <article id="rewards" class="page">
+          <h2>Rewards Store</h2>
+          <div class="section">
+            <h3>Your XP & Level</h3>
+            <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 20px;">
+              <div style="text-align: center;">
+                <div style="font-size: 2.5rem; font-weight: bold; color: var(--primary);">⭐</div>
+                <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary);" id="rewardsXP">0</div>
+                <div style="color: var(--text-muted); font-size: 0.9rem;">Current XP</div>
+              </div>
+              <div style="text-align: center;">
+                <div style="font-size: 2rem; font-weight: bold; color: var(--accent);">🏆</div>
+                <div style="font-size: 1.5rem; font-weight: 700; color: var(--accent);" id="totalXP">0</div>
+                <div style="color: var(--text-muted); font-size: 0.9rem;">Total XP</div>
+              </div>
+              <div style="flex: 1;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                  <span style="font-weight: 600;">Level <span id="rewardsLevel">1</span></span>
+                  <span style="color: var(--text-muted);" id="xpProgress">0 / 1000 XP</span>
+                </div>
+                <div style="width: 100%; height: 12px; background: var(--border); border-radius: 6px; overflow: hidden;">
+                  <div id="levelBar" style="height: 100%; background: linear-gradient(90deg, var(--primary), var(--accent)); border-radius: 6px; width: 0%; transition: width 0.3s ease;"></div>
+                </div>
+                <div style="text-align: center; margin-top: 5px; color: var(--text-muted); font-size: 0.9rem;" id="xpToNext">1000 XP to next level</div>
+              </div>
+            </div>
+          </div>
+          <div class="section">
+            <h3>Available Rewards</h3>
+            <div id="rewardsList" class="card-grid">
+              <!-- Rewards will be loaded here -->
+            </div>
+          </div>
+          <pre id="rewardsOutput" class="demo-debug"></pre>
+        </article>
       </section>
 
       <aside class="side-panel" id="devtools" style="display:none;">
@@ -285,6 +406,9 @@
         if (requireAuth()) loadAchievements();
         loadAvailableAchievements();
       }
+      if (pageId === 'rewards') {
+        if (requireAuth()) loadRewards();
+      }
     }
 
     function setResult(id, data) {
@@ -303,7 +427,7 @@
       document.getElementById('profileJoined').textContent = profile.join_date;
       document.getElementById('profileCurrentStreak').textContent = profile.current_streak;
       document.getElementById('profileLongestStreak').textContent = profile.longest_streak;
-      document.getElementById('profileXP').textContent = profile.xp_current;
+      document.getElementById('profileXP').textContent = `${profile.xp_current} (Total: ${profile.xp_total})`;
       document.getElementById('profileTierSelect').value = profile.tier;
     }
 
@@ -624,6 +748,82 @@
       return json;
     }
 
+    async function loadRewards() {
+      if (!requireAuth()) return;
+      try {
+        // Load XP info
+        const xpRes = await fetch(`/users/${userId}/xp`, { headers: { Authorization: 'Bearer ' + authToken } });
+        if (!xpRes.ok) {
+          console.error('loadRewards: XP fetch failed');
+          return;
+        }
+        const xpData = await xpRes.json();
+        document.getElementById('rewardsXP').textContent = xpData.xp_current;
+        document.getElementById('totalXP').textContent = xpData.total_xp;
+        document.getElementById('rewardsLevel').textContent = xpData.level;
+        document.getElementById('xpToNext').textContent = `${xpData.xp_to_next_level} XP to next level`;
+        
+        const currentLevelXP = xpData.level * 1000;
+        const progressPercent = (xpData.xp_current / currentLevelXP) * 100;
+        document.getElementById('levelBar').style.width = `${Math.min(progressPercent, 100)}%`;
+        document.getElementById('xpProgress').textContent = `${xpData.xp_current} / ${currentLevelXP} XP`;
+
+        // Load rewards
+        const rewardsRes = await fetch(`/users/${userId}/rewards`, { headers: { Authorization: 'Bearer ' + authToken } });
+        if (!rewardsRes.ok) {
+          console.error('loadRewards: rewards fetch failed');
+          return;
+        }
+        const rewardsData = await rewardsRes.json();
+        setResult('rewardsOutput', rewardsData);
+        
+        const rewardsList = document.getElementById('rewardsList');
+        if (Array.isArray(rewardsData) && rewardsData.length) {
+          rewardsList.innerHTML = rewardsData.map(r => `
+            <div class="section" style="margin: 0; padding: 20px; ${r.is_unlocked ? 'border: 2px solid #4CAF50; background: linear-gradient(135deg, #e8f5e8, #f1f8e9);' : ''}">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <h4 style="margin: 0; color: ${r.is_unlocked ? '#2E7D32' : 'var(--text)'};">${r.name}</h4>
+                <div style="font-size: 1.2rem;">${r.is_unlocked ? '✅' : '🔒'}</div>
+              </div>
+              <p style="margin: 4px 0; color: var(--text-muted); font-size: 0.9rem;">${r.description}</p>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px;">
+                <div style="font-weight: 600; color: var(--primary);">${r.xp_cost} XP</div>
+                ${r.is_unlocked ? 
+                  '<button style="background: #4CAF50; color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 600;">Redeemed</button>' :
+                  `<button onclick="redeemReward('${r.id}')" style="background: ${xpData.total_xp >= r.xp_cost ? 'var(--primary)' : '#ccc'}; color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: ${xpData.total_xp >= r.xp_cost ? 'pointer' : 'not-allowed'}; font-weight: 600;">Redeem</button>`
+                }
+              </div>
+            </div>
+          `).join('');
+        } else {
+          rewardsList.innerHTML = '<div class="section" style="margin: 0;"><p>No rewards available</p></div>';
+        }
+        
+        return rewardsData;
+      } catch (err) {
+        console.error('loadRewards error:', err);
+      }
+    }
+
+    async function redeemReward(rewardId) {
+      if (!requireAuth()) return;
+      const res = await fetch(`/users/${userId}/rewards/redeem`, { 
+        method: 'POST', 
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + authToken }, 
+        body: JSON.stringify({ reward_id: rewardId }) 
+      });
+      const json = await res.json();
+      setResult('rewardsOutput', json);
+      if (res.ok) {
+        alert('Reward redeemed successfully!');
+        loadRewards(); // Refresh the rewards page
+        fetchProfile(); // Update profile XP
+      } else {
+        alert('Failed to redeem reward: ' + (json.detail || 'Unknown error'));
+      }
+      return json;
+    }
+
     async function getXP() {
       if (!requireAuth()) return;
       const res = await fetch(`/users/${userId}/xp`, { headers: { Authorization: 'Bearer ' + authToken } });
@@ -675,7 +875,8 @@
           loadDashboardTasks(),
           loadChecklist(),
           loadAchievements(),
-          loadAvailableAchievements()
+          loadAvailableAchievements(),
+          loadRewards()
         ]);
         console.log('Dashboard data loaded');
       } else {
