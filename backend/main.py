@@ -60,9 +60,9 @@ def seed_core_data(db: Session):
         a3 = models.Achievement(name="Consistent Scholar",description="Log Torah study 5 days in a row",xp_reward=250,icon="badgeStudy.png",criteria="study streak >= 5")
         db.add_all([a1,a2,a3])
     if db.query(models.Reward).count() == 0:
-        r1 = models.Reward(name="Premium Theme Pack",description="Unlock special UI theme",xp_cost=1000,is_unlocked=False)
-        r2 = models.Reward(name="Extra Avatar",description="Special avatar frame",xp_cost=500,is_unlocked=False)
-        r3 = models.Reward(name="Shabbat Box",description="Download a Shabbat checklist template",xp_cost=300,is_unlocked=False)
+        r1 = models.Reward(name="Mesilas Yeshurim",description="Your own copy of beautiful musar",xp_cost=1000,is_unlocked=False)
+        r2 = models.Reward(name="Sefer Yetzira",description="Explore the kabalistic side of crreation",xp_cost=500,is_unlocked=False)
+        r3 = models.Reward(name="Mishna Torah",description="The holy Rambam's compiled halacha",xp_cost=300,is_unlocked=False)
         db.add_all([r1,r2,r3])
 
     # Seed demo users only if none exist
