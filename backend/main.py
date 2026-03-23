@@ -431,10 +431,10 @@ def get_zmanim(
     return schemas.ZmanimResponse(**base_times)
 
 
-@app.get("/calendar/omer/{date}", response_model=schemas.OmerResponse)
-def get_omer(date: str):
-    target_date = datetime.fromisoformat(date).date()
-    start = date.today().replace(year=target_date.year, month=3, day=16)
+@app.get("/calendar/omer/{date_str}", response_model=schemas.OmerResponse)
+def get_omer(date_str: str):
+    target_date = datetime.fromisoformat(date_str).date()
+    start = date(year=target_date.year, month=3, day=16)
     if start > target_date:
         start = target_date
     omer_day = (target_date - start).days + 1
